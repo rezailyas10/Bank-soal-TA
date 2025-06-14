@@ -10,8 +10,8 @@ class Question extends Model
     use HasFactory;
 
     protected $fillable = [
-        'question_text', 'photo', 'question_type', 'explanation', 'lesson',
-        'sub_category_id', 'exam_id'
+        'question_text', 'photo', 'question_type', 'explanation', 'difficulty','lesson',
+        'sub_category_id', 'exam_id', 'user_id', 'status'
     ];
 
     public function exam()
@@ -22,6 +22,10 @@ class Question extends Model
     public function subCategory()
     {
         return $this->belongsTo(SubCategory::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     // Relasi ke detail jawaban

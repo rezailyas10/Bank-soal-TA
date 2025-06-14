@@ -99,7 +99,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
     flex-shrink: 0;
 }
 
@@ -306,7 +305,7 @@
                   Dapetin <span class="highlight">ratusan</span> bank soal lengkap dan tryout untuk latih pemahamanmu 
                   hadapi <span class="highlight">SNBT</span>. Kamu bisa tau pemahaman materi 
                   mana yang perlu kamu tingkatin dan siap bersaing dengan siswa 
-                  di seluruh penjuru Indonesia.
+                  di seluruh penjuru Indonesia untuk masuk perguruan tinggi.
                 </p>
                 <a href="{{ route('bank-soal') }}" class="btn soalin-btn" style="background-color: #dee2e6;">
                   Kerjain Bank Soal Sekarang
@@ -322,33 +321,8 @@
     </div>
   </div>
 </section>
-<section class="store-trend-categories pt-0 pb-4">
-    <div class="container">
-        <div class="row mb-3">
-            <div class="col-12 text-center" data-aos="fade-up">
-                <h2 class="section-title mt-4">Universitas Terfavorit</h2>
-            </div>
-        </div>
-        
-        <div class="universities-grid mb-3">
-            @foreach($universities as $university)
-            <div class="university-item">
-                <a href="#" class="university-card">
-                    <div class="university-image-container">
-                        <img src="{{ asset('storage/' . $university->photo) }}" 
-                             alt="{{ $university->name }}" 
-                             class="university-img">
-                             
-                    </div>
-                    <p class="university-name">{{ $university->name }}</p>
-                </a>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
 
-  <section class="store-new-products">
+  <section class="store-new-products pt-0" style="padding-bottom: 80px">
     <div class="container">
             <div class="row">
                 <div class="col-12 text-center pt-4 pb-2">
@@ -399,6 +373,33 @@
             </div>
         </div>
   </section>
+<section class="store-trend-categories pt-0 pb-5">
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-12 text-center">
+                <h2 class="section-title mt-4">Universitas Terfavorit</h2>
+            </div>
+        </div>
+        
+        <div class="universities-grid pb-4">
+            @foreach($universities as $university)
+            <div class="university-item">
+                <a href="#" class="university-card">
+                    <div class="university-image-container">
+                        <img src="{{ asset('storage/' . $university->photo) }}" 
+                             alt="{{ $university->name }}" 
+                             class="university-img">
+                             
+                    </div>
+                    <p class="university-name">{{ $university->name }}</p>
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+
 
    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </div>

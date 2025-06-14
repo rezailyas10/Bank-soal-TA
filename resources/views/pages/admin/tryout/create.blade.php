@@ -1,4 +1,4 @@
-@extends('layouts.mitra')
+@extends('layouts.admin')
 
 @section('title')
   Buat Bank Soal Baru
@@ -37,31 +37,7 @@
                 <textarea name="description" id="description" rows="3" class="form-control" >{{ old('description') }}</textarea>
             </div>
             <input type="hidden" name="exam_type" id="exam_type" value="tryout">
-
-                           {{-- === SECTION: tryout --}}
-                           <div id="tryout-section" >
-                            <label class="d-block">Daftar Subtest</label>
-                            <div id="subtest-list">
-                                <div class="d-flex mb-2 subtest-item">
-                                    <select name="subcategory_id[]" class="form-control mr-2">
-                                        <option value="">-- Subtest --</option>
-                                        @foreach($sub_categories as $sub)
-                                            <option value="{{ $sub->id }}">{{ $sub->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <input type="number"
-                                        name="timer[]"
-                                        class="form-control mr-2"
-                                        placeholder="Timer (menit)">
-                                    <button type="button"
-                                            class="btn btn-danger remove-row">-</button>
-                                </div>
-                            </div>
-                            <button type="button"
-                                    id="add-row"
-                                    class="btn btn-primary btn-sm mb-3">
-                                + Tambah Subtest
-                            </button>
+                         
     
                             {{-- tanggal dibuka/ditutup masuk exam --}}
                             <div class="form-group">
@@ -80,7 +56,7 @@
                                     class="form-control"
                                     value="{{ old('tanggal_ditutup', $exam->tanggal_ditutup ?? '') }}">
                             </div>
-                        </div>
+                      
 
             <div class="form-group">
                 <label for="is_published">Published</label>

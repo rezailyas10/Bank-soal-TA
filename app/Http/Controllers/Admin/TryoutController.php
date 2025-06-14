@@ -23,8 +23,17 @@ class TryoutController extends Controller
     public function index()
     {
         $subcategories = SubCategory::all();
-        $exams = Exam::where('exam_type','tryout')->where('created_by', Auth::user()->name)->latest()->paginate(24);
-        return view('pages.mitra.tryout.index',[
+         $user = Auth::user();
+        // Tentukan view berdasarkan role
+    if ($user->roles === 'ADMIN') {
+         $exams = Exam::where('exam_type','tryout')->where('created_by', Auth::user()->name)->latest()->paginate(24);
+        $view = 'pages.admin.tryout.index';
+    } elseif ($user->roles === 'MITRA') {
+        $exams = Exam::where('exam_type','tryout')->latest()->paginate(24);
+        $view = 'pages.mitra.tryout.index';
+    }
+        
+        return view($view,[
             'sub_categories' => $subcategories,
             'exams' => $exams,
         ]);
@@ -96,8 +105,31 @@ class TryoutController extends Controller
      */
     public function show(string $id)
     {
-        $exam = Exam::with([ 'questions', 'subCategory'])->where('slug',$id)->firstOrFail();
-        return view('pages.mitra.tryout.show', compact('exam'));
+        $user = Auth::user();
+        if ($user->roles === 'ADMIN') {
+        $exam = Exam::with([
+        'questions' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        },
+        'questions.subCategory',
+        'questions.user',
+        'subCategory'
+    ])->where('slug', $id)->firstOrFail();
+        $view = 'pages.admin.tryout.show';
+    } elseif ($user->roles === 'MITRA') {
+    $exam = Exam::with([
+        'questions' => function($query) {
+            $query->where('user_id', auth()->id())
+                  ->orderBy('created_at', 'desc');
+        },
+        'questions.subCategory',
+        'questions.user',
+        'subCategory'
+    ])->where('slug', $id)->firstOrFail();
+    
+    $view = 'pages.mitra.tryout.show';
+}
+        return view($view, compact('exam'));
     }
 
     /**

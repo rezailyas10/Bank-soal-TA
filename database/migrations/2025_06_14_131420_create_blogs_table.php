@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('result_logs', function (Blueprint $table) {
+        Schema::create('blogs', function (Blueprint $table) {
             $table->id();
-             $table->foreignId('result_id')->constrained()->onDelete('cascade');
-               $table->integer('correct');
-            $table->integer('wrong');
-            $table->float('score');
+            $table->string('title');
+            $table->string('slug')->unique();
+            $table->longText('content');
+            $table->string('cover')->nullable(); // url gambar atau path
+            $table->enum('category',['panduan', 'artikel']);
+            $table->string('author');
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('result_logs');
+        Schema::dropIfExists('blogs');
     }
 };

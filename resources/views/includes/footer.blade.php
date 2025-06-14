@@ -3,6 +3,7 @@
      background-color: #1A4F80;
       color: white;
       padding: 3rem 1rem;
+      margin-top: 0px;
   }
   
   .footer-logo {
@@ -85,7 +86,7 @@
     <div class="container">
         <div class="row">
             <!-- Brand section with logo and download options -->
-            <div class="col-lg-3 col-md-6 mb-4 mb-md-0" data-aos="fade-up">
+            <div class="col-lg-3 col-md-6 mb-4 mb-md-0" >
                 <div class="footer-logo">
                     SNBT
                 </div>
@@ -116,16 +117,15 @@
                 </div>
             </div>
             <!-- Company info column -->
-            <div class="col-lg-2 col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+            <div class="col-lg-2 col-md-6 mb-4 mb-md-0"  >
                 <h5 class="mb-3">Perusahaan</h5>
                 <ul class="footer-menu">
                     <li><a href="#">Tentang Kami</a></li>
                     <li><a href="#">Karir</a></li>
-                    <li><a href="#">Pahamitra</a></li>
                 </ul>
             </div>
             <!-- Guide column -->
-            <div class="col-lg-2 col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="col-lg-2 col-md-6 mb-4 mb-md-0"  >
                 <h5 class="mb-3">Panduan</h5>
                 <ul class="footer-menu">
                     <li><a href="#">SNBP</a></li>
@@ -134,7 +134,7 @@
                 </ul>
             </div>
             <!-- Copyright column -->
-            <div class="col-lg-2 col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="300">
+            <div class="col-lg-2 col-md-6 mb-4 mb-md-0"  >
                 <h5 class="mb-3">Hak Cipta</h5>
                 <ul class="footer-menu">
                     <li><a href="#">Privacy Policy</a></li>
@@ -142,7 +142,7 @@
                 </ul>
             </div>
             <!-- Follow us column -->
-            <div class="col-lg-2 col-md-6 mb-4 mb-md-0" data-aos="fade-up" data-aos-delay="400">
+            <div class="col-lg-2 col-md-6 mb-4 mb-md-0" >
                 <h5 class="mb-3">Ikuti Kami</h5>
                 <div class="footer-menu">
                     <div class="social-item">
@@ -154,10 +154,6 @@
                         <a href="#">Instagram</a>
                     </div>
                     <div class="social-item">
-                        <img src="https://cdnjs.cloudflare.com/ajax/libs/simple -icons/3.0.1/twitter.svg" alt="Twitter" class="social-icon">
-                        <a href="#">Twitter</a>
-                    </div>
-                    <div class="social-item">
                         <img src="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/3.0.1/youtube.svg" alt="Youtube" class="social-icon">
                         <a href="#">Youtube</a>
                     </div>
@@ -165,14 +161,10 @@
                         <img src="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/3.0.1/linkedin.svg" alt="LinkedIn" class="social-icon">
                         <a href="#">LinkedIn</a>
                     </div>
-                    <div class="social-item">
-                        <img src="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/3.0.1/tiktok.svg" alt="Tik Tok" class="social-icon">
-                        <a href="#">Tik Tok</a>
-                    </div>
                 </div>
             </div>
             <!-- Contact column -->
-            <div class="col-lg-1 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <div class="col-lg-1 col-md-6"  >
                 <h5 class="mb-3">Kontak Kami</h5>
                 <div class="footer-menu">
                     <div class="social-item">
@@ -181,7 +173,7 @@
                     </div>
                     <div class="social-item">
                         <img src="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/3.0.1/gmail.svg" alt="Email" class="social-icon">
-                        <a href="mailto:cs@pahamify.com">cs@pahamify.com</a>
+                        <a href="mailto:cs@soalin.com">cs@soalin.com</a>
                     </div>
                 </div>
             </div>

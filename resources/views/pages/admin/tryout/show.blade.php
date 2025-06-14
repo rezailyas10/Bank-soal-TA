@@ -1,7 +1,7 @@
-@extends('layouts.mitra')
+@extends('layouts.admin')
 
 @section('title')
-  Detail Bank Soal
+  Detail tryout
 @endsection
 
 @section('content')
@@ -13,7 +13,7 @@
         </div>
     @endif
 
-    <h1>Detail Bank Soal: {{ $exam->title }}</h1>
+    <h1>Detail tryout: {{ $exam->title }}</h1>
     
     <div class="card mb-3">
         <div class="card-body">
@@ -26,26 +26,29 @@
 
     <div class="row mb-3">
         <div class="col-md-6">
-            <a href="{{ route('question.create', ['exam_id' => $exam->id]) }}" class="btn btn-primary">Tambah Pertanyaan</a>
+            <a href="{{ route('tryout.edit', $exam->id) }}" class="btn btn-secondary">Edit tryout</a>
+        </div>
+        <div class="col-md-6 text-right">
+            <form action="{{ route('tryout.destroy', $exam->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Anda yakin ingin menghapus tryout ini?');">
+                @csrf
+                @method('DELETE')
+                <button class="btn btn-danger">Hapus tryout</button>
+            </form>
         </div>
     </div>
 
     <hr>
 
-    <h3>Pertanyaan Saya</h3>
+    <h3>Pertanyaan</h3>
     
-    @php
-        $userQuestions = $exam->questions->where('user_id', auth()->id());
-    @endphp
-    
-    @if($userQuestions->count() > 0)
+    @if($exam->questions->count() > 0)
         <!-- Filter berdasarkan mata pelajaran -->
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="subCategoryFilter">Filter berdasarkan Mata Pelajaran:</label>
                 <select id="subCategoryFilter" class="form-control">
                     <option value="">Semua Mata Pelajaran</option>
-                    @foreach($userQuestions->groupBy('subCategory.name') as $subCategoryName => $questions)
+                    @foreach($exam->questions->groupBy('subCategory.name') as $subCategoryName => $questions)
                         <option value="{{ $subCategoryName }}">{{ $subCategoryName }} ({{ $questions->count() }})</option>
                     @endforeach
                 </select>
@@ -78,7 +81,7 @@
                         <th>No</th>
                         <th>Pertanyaan</th>
                         <th>Mata Pelajaran</th>
-                        <th>Tanggal Dibuat</th>
+                        <th>Pembuat</th>
                         <th>Tingkat Kesulitan</th>
                         <th>Tipe Soal</th>
                         <th>Status</th>
@@ -86,7 +89,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($userQuestions as $index => $question)
+                    @foreach($exam->questions as $index => $question)
                         <tr class="question-row" 
                             data-subcategory="{{ $question->subCategory->name ?? '' }}"
                             data-difficulty="{{ strtolower($question->difficulty ?? '') }}"
@@ -104,11 +107,9 @@
                             </td>
                             <td>
                                 <small>
-                                    {{ $question->created_at->format('d/m/Y H:i') }}
-                                    @if($question->updated_at != $question->created_at)
-                                        <br>
-                                        <em class="text-muted">Diupdate: {{ $question->updated_at->format('d/m/Y H:i') }}</em>
-                                    @endif
+                                    {{ $question->user->name ?? 'Unknown' }}
+                                    <br>
+                                    <em>{{ $question->created_at->format('d/m/Y') }}</em>
                                 </small>
                             </td>
                             <td>
@@ -127,17 +128,11 @@
                             </td>
                             <td>
                                 @if(strtolower($question->status ?? 'ditinjau') == 'diterima')
-                                    <span class="badge badge-success">
-                                        <i class="fas fa-check-circle"></i> Diterima
-                                    </span>
+                                    <span class="badge badge-success">Diterima</span>
                                 @elseif(strtolower($question->status ?? 'ditinjau') == 'ditolak')
-                                    <span class="badge badge-danger">
-                                        <i class="fas fa-times-circle"></i> Ditolak
-                                    </span>
+                                    <span class="badge badge-danger">Ditolak</span>
                                 @elseif(strtolower($question->status ?? 'ditinjau') == 'ditinjau')
-                                    <span class="badge badge-warning">
-                                        <i class="fas fa-clock"></i> Ditinjau
-                                    </span>
+                                    <span class="badge badge-warning">Ditinjau</span>
                                 @else
                                     <span class="badge badge-secondary">Tidak Diketahui</span>
                                 @endif
@@ -149,25 +144,11 @@
                                        title="Detail">
                                         <i class="fas fa-eye"></i> Detail
                                     </a>
-                                    @if(strtolower($question->status ?? 'ditinjau') != 'diterima')
-                                        <a href="{{ route('question.edit', $question->id) }}" 
-                                           class="btn btn-sm btn-warning" 
-                                           title="Edit">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                    @endif
-                                    @if(strtolower($question->status ?? 'ditinjau') == 'ditinjau' || strtolower($question->status ?? 'ditinjau') == 'ditolak')
-                                        <form action="{{ route('question.destroy', $question->id) }}" 
-                                              method="POST" 
-                                              class="d-inline-block" 
-                                              onsubmit="return confirm('Anda yakin ingin menghapus pertanyaan ini?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="fas fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    @endif
+                                    <a href="{{ route('question.edit', $question->id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Edit">
+                                        <i class="fas fa-edit"></i> Update
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -176,38 +157,18 @@
             </table>
         </div>
 
-        <!-- Informasi total dan status breakdown -->
+        <!-- Informasi total -->
         <div class="row mt-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <p class="text-muted">
-                    Total pertanyaan saya: <span id="totalQuestions">{{ $userQuestions->count() }}</span>
-                    | Ditampilkan: <span id="visibleQuestions">{{ $userQuestions->count() }}</span>
+                    Total: <span id="totalQuestions">{{ $exam->questions->count() }}</span> pertanyaan
+                    | Ditampilkan: <span id="visibleQuestions">{{ $exam->questions->count() }}</span> pertanyaan
                 </p>
             </div>
-            <div class="col-md-4 text-right">
-                <small class="text-muted">
-                    <span class="badge badge-warning">{{ $userQuestions->where('status', 'ditinjau')->count() }}</span> Ditinjau |
-                    <span class="badge badge-success">{{ $userQuestions->where('status', 'diterima')->count() }}</span> Diterima |
-                    <span class="badge badge-danger">{{ $userQuestions->where('status', 'ditolak')->count() }}</span> Ditolak
-                </small>
-            </div>
         </div>
-
-        <!-- Alert informasi status -->
-        @if($userQuestions->where('status', 'ditolak')->count() > 0)
-            <div class="alert alert-info mt-3">
-                <i class="fas fa-info-circle"></i>
-                <strong>Info:</strong> Pertanyaan yang ditolak dapat diedit dan diajukan kembali untuk review.
-            </div>
-        @endif
     @else
         <div class="alert alert-info">
-            <h5><i class="fas fa-info-circle"></i> Belum Ada Pertanyaan</h5>
-            <p>Anda belum membuat pertanyaan untuk bank soal ini. 
-               <a href="{{ route('question.create', ['exam_id' => $exam->id]) }}" class="btn btn-primary btn-sm">
-                   <i class="fas fa-plus"></i> Buat pertanyaan pertama Anda
-               </a>
-            </p>
+            <p>Tidak ada pertanyaan. <a href="{{ route('question.create', ['exam_id' => $exam->id]) }}">Buat pertanyaan baru</a></p>
         </div>
     @endif
 </div>
@@ -244,15 +205,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        if (visibleQuestionsSpan) {
-            visibleQuestionsSpan.textContent = visibleCount;
-        }
+        visibleQuestionsSpan.textContent = visibleCount;
     }
 
-    // Add event listeners if elements exist
-    if (subCategoryFilter) subCategoryFilter.addEventListener('change', filterQuestions);
-    if (difficultyFilter) difficultyFilter.addEventListener('change', filterQuestions);
-    if (statusFilter) statusFilter.addEventListener('change', filterQuestions);
+    subCategoryFilter.addEventListener('change', filterQuestions);
+    difficultyFilter.addEventListener('change', filterQuestions);
+    statusFilter.addEventListener('change', filterQuestions);
 });
 </script>
 
@@ -277,14 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .badge {
     font-size: 0.8em;
-}
-
-.badge i {
-    margin-right: 3px;
-}
-
-.alert-info {
-    border-left: 4px solid #17a2b8;
 }
 </style>
 @endsection

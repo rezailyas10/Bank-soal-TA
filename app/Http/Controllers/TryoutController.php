@@ -15,6 +15,7 @@ use App\Models\SubCategory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\ResultDetails;
+use App\Models\ResultsEvaluation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,83 +26,152 @@ class TryoutController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
-    {
-        $currentTime = Carbon::now();
+    public function index(Request $request)
+{
+    $currentTime = Carbon::now();
+    $search = $request->get('search');
+    
+    // Base query dengan search
+    $baseQuery = Exam::where('exam_type', 'tryout')
+        ->where('is_published', true);
+    
+    if ($search) {
+        $baseQuery->where('title', 'LIKE', '%' . $search . '%');
+    }
+    
+    // Upcoming tryouts
+    $upcoming = (clone $baseQuery)
+        ->where('tanggal_dibuka', '>', $currentTime)
+        ->orderBy('tanggal_dibuka')
+        ->get();
 
-        $upcoming = Exam::where('exam_type', 'tryout')
-            ->where('tanggal_dibuka', '>', $currentTime)
-            ->where('is_published',true)
-            ->orderBy('tanggal_dibuka')
-            ->get();
+    // Ongoing tryouts
+    $ongoing = (clone $baseQuery)
+        ->where('tanggal_dibuka', '<=', $currentTime)
+        ->where('tanggal_ditutup', '>=', $currentTime)
+        ->orderBy('tanggal_dibuka')
+        ->get();
 
-        $ongoing = Exam::where('exam_type', 'tryout')
-            ->where('tanggal_dibuka', '<=', $currentTime)
-            ->where('is_published',true)
-            ->where('tanggal_ditutup', '>=', $currentTime)
-            ->orderBy('tanggal_dibuka')
-            ->get();
+    // Past tryouts
+    $past = (clone $baseQuery)
+        ->where('tanggal_ditutup', '<', $currentTime)
+        ->orderBy('tanggal_dibuka', 'desc')
+        ->get();
 
-        $past = Exam::where('exam_type', 'tryout')
-        ->where('is_published',true)
-            ->where('tanggal_ditutup', '<', $currentTime)
-            ->orderBy('tanggal_dibuka', 'desc')
-            ->get();
+    // Merge all exams untuk get user results
+    $allExams = $upcoming->merge($ongoing)->merge($past);
 
-     $allExams = $upcoming->merge($ongoing)->merge($past);
+    $userId = Auth::id();
 
+    // Get user results
     $userResults = [];
+    $myTryouts = collect(); // Tryout yang sudah dikerjakan user
 
-    foreach ($allExams as $exam) {
-        $userResults[$exam->id] = Result::where('user_id', Auth::id())
-            ->where('exam_id', $exam->id)
-            ->latest()
-            ->first();
+       if (Auth::check()) {
+        // Ambil semua result user dengan exam yang sesuai kriteria search
+        $resultsQuery = Result::where('user_id', Auth::id())
+            ->whereHas('exam', function($query) use ($search) {
+                $query->where('exam_type', 'tryout')
+                      ->where('is_published', true);
+                if ($search) {
+                    $query->where('title', 'LIKE', '%' . $search . '%');
+                }
+            })
+            ->with(['exam' => function($query) {
+                $query->select('id', 'title', 'slug', 'tanggal_dibuka', 'tanggal_ditutup');
+            }])
+            ->latest('created_at') // URUTKAN BERDASARKAN CREATED_AT RESULT
+            ->get();
+
+        foreach ($resultsQuery as $result) {
+            if ($result->exam) {
+                $userResults[$result->exam_id] = $result;
+                $myTryouts->push($result->exam);
+            }
+        }
     }
 
-      // Statistik per subcategory
-           // Statistik per subcategory, hanya untuk exam_type = 'latihan'
-            // $subCategoryStats = Result::join('exams', 'results.exam_id', '=', 'exams.id')
-            //     ->join('sub_categories', 'exams.sub_category_id', '=', 'sub_categories.id')
-            //     ->where('results.user_id', Auth::id())
-            //     ->where('exams.exam_type', 'latihan soal')             // filter di sini
-            //     ->selectRaw('
-            //         sub_categories.id,
-            //         sub_categories.name,
-            //         COUNT(results.id) as total_attempts,
-            //         AVG(results.score) as avg_score,
-            //         MAX(results.score) as best_score
-            //     ')
-            //     ->groupBy('sub_categories.id', 'sub_categories.name')
-            //     ->orderByDesc('total_attempts')
-            //     ->get();
-
-            // // Riwayat pengerjaan, hanya latihan
-            // $results = Result::with(['exam.subCategory'])
-            //     ->join('exams', 'results.exam_id', '=', 'exams.id')
-            //     ->where('results.user_id', Auth::id())
-            //     ->where('exams.exam_type', 'latihan soal')             // filter di sini
-            //     ->orderByDesc('results.created_at')
-            //     ->select('results.*')                              // select kolom results.*
-            //     ->limit(10)
-            //     ->get();
-
-            // // Hitung detail untuk setiap result
-            // foreach ($results as $result) {
-            //     $details = ResultDetails::where('result_id', $result->id)->get();
-            //     $result->total_questions = $details->count();
-            //     $result->correct_answers = $details->where('correct', true)->count();
-            //     $result->wrong_answers = $details->where('correct', false)->count();
-            // }
+   $examParticipants = [];
+    
+    if ($allExams->isNotEmpty()) {
+        $examIds = $allExams->pluck('id')->unique()->toArray();
         
-
-        return view('pages.tryout.tryout', [
-            'upcoming' => $upcoming,
-            'ongoing'  => $ongoing,
-            'past'     => $past,
-            'userResults' => $userResults
-        ]);
+        // Query untuk mendapatkan jumlah peserta per exam dalam satu query
+        $participantCounts = Result::whereIn('exam_id', $examIds)
+            ->select('exam_id', DB::raw('COUNT(DISTINCT user_id) as participant_count'))
+            ->groupBy('exam_id')
+            ->get()
+            ->keyBy('exam_id');
+        
+        // Populate examParticipants array
+        foreach ($examIds as $examId) {
+            $examParticipants[$examId] = $participantCounts->get($examId)->participant_count ?? 0;
+        }
     }
+
+
+    // Remove tryouts yang sudah dikerjakan dari kategori lain
+    $completedExamIds = $myTryouts->pluck('id')->toArray();
+
+    // Remove tryouts yang sudah dikerjakan dari kategori lain
+    $upcoming = $upcoming->filter(function($exam) use ($userResults) {
+        return !isset($userResults[$exam->id]);
+    });
+    
+    $ongoing = $ongoing->filter(function($exam) use ($userResults) {
+        return !isset($userResults[$exam->id]);
+    });
+    
+    $past = $past->filter(function($exam) use ($userResults) {
+        return !isset($userResults[$exam->id]);
+    });
+
+    // Statistik per subcategory berdasarkan result_details
+$subCategoryStats = DB::table('result_details')
+    ->join('results', 'result_details.result_id', '=', 'results.id')
+    ->join('questions', 'result_details.question_id', '=', 'questions.id')
+    ->join('sub_categories', 'questions.sub_category_id', '=', 'sub_categories.id')
+    ->join('exams', 'results.exam_id', '=', 'exams.id')
+    ->where('results.user_id', $userId)
+    ->where('exams.exam_type', 'tryout')
+    ->selectRaw('
+        sub_categories.id as id,
+        sub_categories.name as name,
+        COUNT(result_details.id) as total_questions,
+        SUM(CASE WHEN result_details.correct = 1 THEN 1 ELSE 0 END) as correct_answers,
+        SUM(CASE WHEN result_details.correct = 0 THEN 1 ELSE 0 END) as wrong_answers,
+        SUM(CASE WHEN result_details.correct IS NULL THEN 1 ELSE 0 END) as empty_answers,
+        ROUND((SUM(CASE WHEN result_details.correct = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(result_details.id)), 1) as accuracy_percentage
+    ')
+    ->groupBy('sub_categories.id', 'sub_categories.name')
+    ->orderByDesc('total_questions')
+    ->get();
+
+     // Ambil 10 riwayat terbaru dari results_evaluation, filter user dan exam_type
+        $results = ResultsEvaluation::whereHas('result', function($q) use ($userId) {
+                $q->where('user_id', $userId)
+                  ->whereHas('exam', function($q2) {
+                      $q2->where('exam_type', 'tryout'); // sesuaikan exact string exam_type Anda
+                  });
+            })
+            ->with(['result.exam']) // eager load untuk akses exam->title
+            ->orderByDesc('created_at') // atau orderByDesc('updated_at') jika Anda update evaluation
+            ->limit(10)
+            ->get();
+    
+
+    return view('pages.tryout.tryout', [
+        'myTryouts' => $myTryouts,
+        'upcoming' => $upcoming,
+        'ongoing' => $ongoing,
+        'past' => $past,
+        'userResults' => $userResults,
+        'search' => $search,
+        'examParticipants' => $examParticipants, // Tambahkan data peserta
+        'subCategoryStats' => $subCategoryStats,
+            'results' => $results,
+    ]);
+}
     public function test()
     {
        $subCategories = SubCategory::all();

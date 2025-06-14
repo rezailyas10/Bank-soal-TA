@@ -14,6 +14,8 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
     <link href="/style/main.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/v/bs5/dt-2.0.5/datatables.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     @stack('addon-style')
   </head>
 
@@ -28,7 +30,7 @@
           <div class="list-group list-group-flush">
             <a
               href="{{ route('admin-dashboard') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('admin*')) ? 'active' : '' }} "
+              class="list-group-item list-group-item-action {{ (request()->is('admin**')) ? 'active' : '' }} "
               >Dashboard</a
             >
             <a
@@ -41,6 +43,30 @@
               class="list-group-item list-group-item-action {{ (request()->is('admin/subcategory*')) ? 'active' : '' }} "
               >Mata Pelajaran</a
             >
+                <div class="list-group">
+                <a href="#dropdownTryout" 
+                  class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                  data-bs-toggle="collapse" 
+                  aria-expanded="{{ request()->is('exam*') || request()->is('tryout*') || request()->is('nilai-tryout*') ? 'true' : 'false' }}" 
+                  aria-controls="dropdownTryout">
+                  Tryout Menu
+                  <i class="fas fa-chevron-down"></i>
+                </a>
+
+                <div class="collapse {{ request()->is('exam*') || request()->is('tryout*') || request()->is('nilai-tryout*') ? 'show' : '' }}" id="dropdownTryout">
+                  <a href="{{ route('exam.index') }}" class="list-group-item list-group-item-action ps-4 {{ request()->is('exam*') ? 'active' : '' }}">
+                    Latihan Soal
+                  </a>
+                  <a href="{{ route('tryout.index') }}" class="list-group-item list-group-item-action ps-4 {{ request()->is('tryout*') ? 'active' : '' }}">
+                    Tryout
+                  </a>
+                  <a href="{{ route('nilai-tryout.index') }}" class="list-group-item list-group-item-action ps-4 {{ request()->is('admin/nilai-tryout*') ? 'active' : '' }}">
+                    Nilai Tryout
+                  </a>
+                </div>
+              </div>
+
+
             <a
             href="{{ route('user.index') }}" 
               class="list-group-item list-group-item-action {{ (request()->is('admin/user*')) ? 'active' : '' }} "
@@ -55,6 +81,11 @@
               href="{{ route('major.index') }}" 
               class="list-group-item list-group-item-action {{ (request()->is('admin/major*')) ? 'active' : '' }} "
               >Program Studi</a
+            >
+             <a
+              href="{{ route('blog.index') }}" 
+              class="list-group-item list-group-item-action {{ (request()->is('admin/blog*')) ? 'active' : '' }} "
+              >Blog</a
             >
              <a
               href="{{ route('dashboard-settings-account') }}"

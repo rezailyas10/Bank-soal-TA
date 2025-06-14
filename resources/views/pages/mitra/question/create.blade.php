@@ -52,19 +52,14 @@
         </div>
 
         <div class="form-group">
-            <label for="explanation">Penjelasan</label>
-            <textarea name="explanation" id="explanation" class="form-control tiny-editor">{{ old('explanation') }}</textarea>
-        </div>
-
-        <div class="form-group">
             <label for="lesson">Pelajaran (Lesson)</label>
             <input type="text" name="lesson" id="lesson" class="form-control" value="{{ old('lesson') }}" required>
         </div>
 
         <div class="form-group">
-            <label for="sub_category_id">Sub Category</label>
+            <label for="sub_category_id">Mata Pelajaran</label>
             <select name="sub_category_id" id="sub_category_id" class="form-control" required>
-                <option value="">-- Pilih Sub Category --</option>
+                <option value="">-- Pilih Mata Pelajaran --</option>
                 @foreach($sub_categories as $subCat)
                     <option value="{{ $subCat->id }}" {{ old('sub_category_id') == $subCat->id ? 'selected' : '' }}>
                         {{ $subCat->name }}
@@ -72,9 +67,6 @@
                 @endforeach
             </select>
         </div>
-
-   
-
         <!-- Section untuk Pilihan Ganda -->
         <div id="section-pilihan_ganda" style="display: none;">
             <h4>Pilihan Ganda</h4>
@@ -200,6 +192,27 @@
                 <input type="text" name="text" id="essay_text" class="form-control" value="{{ old('text') }}">
             </div>
         </div>
+
+         <div class="form-group">
+            <label for="explanation">Penjelasan</label>
+            <textarea name="explanation" id="explanation" class="form-control tiny-editor">{{ old('explanation') }}</textarea>
+        </div>
+
+
+        <div class="form-group">
+    <label for="difficulty">Tingkat Kesulitan</label>
+    <select name="difficulty" id="difficulty" class="form-control" required>
+        <option value="">-- Pilih Kesulitan --</option>
+        <option value="Mudah"  {{ old('difficulty')=='Mudah'  ? 'selected':'' }}>Mudah</option>
+        <option value="Sedang" {{ old('difficulty')=='Sedang' ? 'selected':'' }}>Sedang</option>
+        <option value="Sulit"  {{ old('difficulty')=='Sulit'  ? 'selected':'' }}>Sulit</option>
+    </select>
+    @error('difficulty')
+      <small class="text-danger">{{ $message }}</small>
+    @enderror
+</div>
+
+
 
        
 </div>

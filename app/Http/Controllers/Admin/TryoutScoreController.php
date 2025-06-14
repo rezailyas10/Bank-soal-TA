@@ -24,7 +24,7 @@ class TryoutScoreController extends Controller
                  ->withCount('results') // Menambahkan count untuk results
                  ->latest()
                  ->paginate(24);
-        return view('pages.mitra.nilai-tryout.index',[
+        return view('pages.admin.nilai-tryout.index',[
             'exams' => $exams,
         ]);
     }
@@ -124,7 +124,7 @@ class TryoutScoreController extends Controller
     }
 
     // Kirim data ke view
-    return view('pages.mitra.nilai-tryout.show', compact(
+    return view('pages.admin.nilai-tryout.show', compact(
         'exam', 
         'questionsBySubCategory', 
         'totalParticipants',

@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Essay;
 use App\Models\Exam;
-use App\Models\MultipleChoice;
-use App\Models\MultipleOption;
+use App\Models\User;
+use App\Models\Essay;
 use App\Models\Question;
 use App\Models\SubCategory;
-use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\MultipleChoice;
+use App\Models\MultipleOption;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Str;
 
 class questionController extends Controller
 {
@@ -39,6 +40,9 @@ class questionController extends Controller
         $data = $request->all();
         $exam = Exam::findOrFail($request->exam_id);
         $data['exam_id'] = $exam->id;
+        $data['user_id']    = Auth::id();              // user yg login
+        $data['status']     = 'Ditinjau';              // default
+        $data['difficulty'] = $request->difficulty;
         // Proses upload foto
     if ($request->hasFile('photo')) {
         $file = $request->file('photo');
@@ -155,8 +159,16 @@ if ($exam->exam_type === 'latihan soal') {
         $exam = Exam::all();
         $users = User::all();
         $subcategories = SubCategory::all();
+          $user = Auth::user();
+          $exam = Exam::find($question->exam_id);
 
-        return view('pages.mitra.question.update', [
+         if ($user->roles === 'ADMIN') {
+        $view = 'pages.mitra.question.updateTryout';
+    } elseif ($user->roles === 'MITRA') {
+        $view = 'pages.mitra.question.update';
+    }
+
+        return view($view, [
             'question' => $question,
             'exam'           => $exam,
             'users'          => $users,
@@ -169,9 +181,25 @@ if ($exam->exam_type === 'latihan soal') {
      */
     public function update(Request $request, Exam $exam, Question $question)
 {
-    $data = $request->all();
+      $user = Auth::user();
+      if ($user->roles === 'ADMIN') {
+        // Validasi input status
+        $request->validate([
+            'status' => 'required|in:Ditinjau,Diterima,Ditolak',
+        ]);
+        // Update status saja
+        $question->status = $request->status;
+        $question->save();
+
+        return redirect()->back()->with('success', 'Status pertanyaan berhasil diperbarui.');
+    }
+    elseif ($user->roles === 'MITRA') {
+        $data = $request->all();
     $exam = Exam::findOrFail($request->exam_id);
     $data['exam_id'] = $exam->id;
+    $data['user_id']    = Auth::id();              // user yg login
+    $data['status']     = $request->status;             // default
+    $data['difficulty'] = $request->difficulty;
 
     // Jika ada file foto baru, update foto
     if ($request->hasFile('photo')) {
@@ -303,6 +331,8 @@ if ($request->question_type == 'pilihan_ganda') {
     
 
         return redirect()->back()->with('success', 'Pertanyaan berhasil dirubah!');
+    }
+   
 }
 
     /**

@@ -3,221 +3,17 @@
 @section('title')
   Try Out
 @endsection
-<style>
 
-
-    .navbar-brand {
-        color: white;
-        font-weight: 600;
-    }
-
-    .navbar-icons {
-        display: flex;
-        align-items: center;
-    }
-
-    .navbar-icon {
-        color: white;
-        margin-left: 15px;
-        font-size: 1.2rem;
-    }
-
-    .detail-header {
-        background-color: white;
-        padding: 20px;
-        border-radius: 0 0 15px 15px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .detail-title {
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    .detail-subtitle {
-        color: #777;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-
-    .stats-container {
-        display: flex;
-        justify-content: space-between;
-        margin: 20px 0;
-    }
-
-    .stat-item {
-        text-align: center;
-    }
-
-    .stat-value {
-        font-weight: 600;
-        font-size: 1.2rem;
-        color: var(--primary);
-    }
-
-    .stat-label {
-        font-size: 0.8rem;
-        color: #777;
-    }
-
-    .subject-container {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin-bottom: 15px;
-        overflow: hidden;
-    }
-
-    .subject-header {
-        padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
-        font-weight: 600;
-    }
-
-    .subject-item {
-        padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .subject-item:last-child {
-        border-bottom: none;
-    }
-
-    .time-indicator {
-        display: flex;
-        align-items: center;
-        color: #777;
-        font-size: 0.9rem;
-    }
-
-    .university-selection {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        padding: 20px;
-        margin: 20px 0;
-    }
-
-    .university-title {
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: var(--primary);
-        border-bottom: 2px solid var(--primary);
-        padding-bottom: 5px;
-        display: inline-block;
-    }
-
-    .university-description {
-        color: #555;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-    }
-
-    .custom-select {
-        width: 100%;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        background-color: #f9f9f9;
-    }
-
-    .mascot-container {
-        display: flex;
-        align-items: center;
-        background-color: #e9f0ff;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-
-    .mascot-image {
-        flex: 0 0 60px;
-        height: 60px;
-        background-color: #cfd9f0;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-    }
-
-    .mascot-text {
-        flex: 1;
-        font-size: 0.9rem;
-        color: var(--primary);
-    }
-
-    .footer-note {
-        text-align: center;
-        padding: 20px 0;
-        color: #777;
-        font-size: 0.9rem;
-    }
-
-    .register-button {
-        display: block;
-        width: 100%;
-        padding: 12px;
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        margin-top: 15px;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .subject-duration {
-        display: flex;
-        gap: 10px;
-    }
-
-    .duration-box {
-        background-color: #f0f0f0;
-        border-radius: 5px;
-        padding: 4px 8px;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .duration-icon {
-        margin-right: 5px;
-        color: var(--primary);
-    }
-
-    @media (max-width: 768px) {
-        .stats-container {
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            flex: 0 0 50%;
-            margin-bottom: 15px;
-        }
-
-        .subject-duration {
-            flex-direction: column;
-            gap: 5px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('/style/tryout.css') }}?v={{ time() }}">
 
 @section('content')
-<div class="detail-header" data-aos="fade-down">
-    <div class="container">
+    <div class="container" id="detail-header">
       <!-- Judul & rentang tanggal -->
       <div class="detail-title">{{ $exam->title }}</div>
       <div class="detail-subtitle">
-        {{ $exam->tanggal_dibuka->translatedFormat('j F Y, H:i') }}
+        {{ $exam->tanggal_dibuka->translatedFormat('j F Y') }}
         @if($exam->tanggal_ditutup)
-          &nbsp;–&nbsp;{{ $exam->tanggal_ditutup->translatedFormat('j F Y, H:i') }}
+          &nbsp;–&nbsp;{{ $exam->tanggal_ditutup->translatedFormat('j F Y') }}
         @endif
       </div>
 
@@ -252,8 +48,6 @@
         </div>
       </div>
     </div>
-  </div>
-
   <div class="container py-4">
     {{-- mengkelompokan pertanyaan berdasarkan mata pelajaran --}}
     @php

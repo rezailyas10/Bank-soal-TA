@@ -61,7 +61,7 @@ data-aos="fade-down"
         <a class="nav-link" href="{{ route('tryout') }}">Try Out</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{ route('categories') }}">Blog</a>
+        <a class="nav-link" href="{{ route('blog') }}">Blog</a>
       </li>
       {{-- <ul class="navbar-nav d-none d-lg-flex">
         <li class="nav-item dropdown">

@@ -1,4 +1,4 @@
-@extends('layouts.mitra')
+@extends('layouts.admin')
 
 @section('title')
 Analisis Soal - {{ $exam->title }}
@@ -535,7 +535,7 @@ Analisis Soal - {{ $exam->title }}
             loading.style.display = 'block';
             
             try {
-                const response = await axios.post(`/mitra/nilai-tryout/${examSlug}/calculate-irt`);
+                const response = await axios.post(`/admin/nilai-tryout/${examSlug}/calculate-irt`);
                 
                 if (response.data.success) {
                     irtData = response.data.data;
@@ -568,7 +568,7 @@ Analisis Soal - {{ $exam->title }}
             btn.disabled = true;
             
             try {
-                const response = await axios.post(`/mitra/nilai-tryout/${examSlug}/reset-scores`);
+                const response = await axios.post(`/admin/nilai-tryout/${examSlug}/reset-scores`);
                 
                 if (response.data.success) {
                     irtData = null;
@@ -671,8 +671,8 @@ Analisis Soal - {{ $exam->title }}
 async function fetchDetailedScores(selectedCategory, results, stats, contentDiv) {
     try {
         // Make sure the URL matches your route exactly
-        // If you're in mitra panel, the URL should include /mitra prefix
-        const response = await axios.get(`/mitra/nilai-tryout/${examSlug}/detailed-scores/${encodeURIComponent(selectedCategory)}`);
+        // If you're in admin panel, the URL should include /admin prefix
+        const response = await axios.get(`/admin/nilai-tryout/${examSlug}/detailed-scores/${encodeURIComponent(selectedCategory)}`);
         
         if (!response.data.success) {
             throw new Error('Gagal memuat data skor detail');
@@ -794,7 +794,7 @@ async function fetchDetailedScores(selectedCategory, results, stats, contentDiv)
             const contentDiv = document.getElementById('responsesContent');
 
             try {
-                const response = await axios.get(`/mitra/nilai-tryout/${examSlug}/response-data/${encodeURIComponent(category)}`);
+                const response = await axios.get(`/admin/nilai-tryout/${examSlug}/response-data/${encodeURIComponent(category)}`);
                 
                 if (!response.data.success) {
                     throw new Error('Gagal memuat data jawaban');

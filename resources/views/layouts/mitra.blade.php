@@ -28,23 +28,18 @@
           <div class="list-group list-group-flush">
             <a
               href="{{ route('mitra-dashboard') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('mitra/dashboard*')) ? 'active' : '' }} "
+              class="list-group-item list-group-item-action {{ (request()->is('mitra*')) ? 'active' : '' }} "
               >Dashboard</a
             >
            <a
               href="{{ route('exam.index') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('mitra/exam*')) ? 'active' : '' }}"
+              class="list-group-item list-group-item-action {{ (request()->is('exam*')) ? 'active' : '' }}"
               >Latihan Soal</a
             >
             <a
               href="{{ route('tryout.index') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('mitra/tryout*')) ? 'active' : '' }}"
+              class="list-group-item list-group-item-action {{ (request()->is('tryout*')) ? 'active' : '' }}"
               >Tryout</a
-            >
-            <a
-              href="{{ route('nilai-tryout.index') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('mitra/nilai-tryout*')) ? 'active' : '' }}"
-              >Nilai Tryout</a
             >
              <a
               href="{{ route('dashboard-settings-account') }}"

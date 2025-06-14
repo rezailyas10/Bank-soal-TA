@@ -1,12 +1,18 @@
-@extends('layouts.mitra')
+@extends('layouts.admin')
 
 @section('title')
-  Daftar Pengerjaan Tryout
+  Latihan Soal
 @endsection
 
 @section('content')
+
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 <div class="container">
-    <h1>Daftar Tryout</h1>
+    <h1>Daftar Bank Soal</h1>
 
     <!-- Notifikasi sukses -->
     @if(session('success'))
@@ -17,7 +23,7 @@
 
    <!-- Tombol untuk membuat bank soal baru -->
    <div class="card-body">
-    <a href="{{ route('nilai-tryout.create') }}" class="btn btn-primary mb-3">Buat Bank Soal Baru</a>
+    <a href="{{ route('exam.create') }}" class="btn btn-primary mb-3">Buat Bank Soal Baru</a>
    </div>
 
     <table class="table table-bordered">
@@ -29,7 +35,6 @@
                 <th>Dibuat Oleh</th>
                 <th>Tipe Ujian</th>
                 <th>Jumlah Pertanyaan</th>
-                <th>Jumlah Peserta</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -42,11 +47,10 @@
                 <td>{{ $exam->created_by }}</td>
                 <td>{{ $exam->exam_type }}</td>
                 <td>{{ $exam->questions->count() }}</td>
-                <td>{{ $exam->results_count ?? 0 }}</td>
                 <td>
-                    <a href="{{ route('nilai-tryout.show', $exam->slug) }}" class="btn btn-info btn-sm">Detail</a>
-                    <a href="{{ route('nilai-tryout.edit', $exam->id) }}" class="btn btn-warning btn-sm">Update</a>
-                    <form action="{{ route('nilai-tryout.destroy', $exam->id) }}" method="POST" style="display: inline-block;">
+                    <a href="{{ route('exam.show', $exam->slug) }}" class="btn btn-info btn-sm">Detail</a>
+                    <a href="{{ route('exam.edit', $exam->id) }}" class="btn btn-warning btn-sm">Update</a>
+                    <form action="{{ route('exam.destroy', $exam->id) }}" method="POST" style="display: inline-block;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah anda yakin ingin menghapus?')">Delete</button>
@@ -55,7 +59,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8">Belum ada bank soal.</td>
+                <td colspan="7">Belum ada bank soal.</td>
             </tr>
             @endforelse
         </tbody>

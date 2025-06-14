@@ -22,13 +22,15 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 Route::get('/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('categories');
 Route::get('/banksoal', [App\Http\Controllers\BanksoalController::class, 'index'])->name('bank-soal');
 Route::get('/banksoal/{id}', [App\Http\Controllers\BanksoalController::class, 'detail'])->name('bank-soal-detail');
+Route::get('/blog', [App\Http\Controllers\BlogController::class, 'index'])->name('blog');
+    Route::get('/blog/{slug}', [App\Http\Controllers\BlogController::class, 'show'])->name('blog-show');
 
-Route::get('/tryout', [App\Http\Controllers\TryoutController::class, 'index'])->name('tryout');
-Route::get('/tryout1', [App\Http\Controllers\TryoutController::class, 'test'])->name('tryout1');
+Route::get('/get-tryout', [App\Http\Controllers\TryoutController::class, 'index'])->name('tryout');
+Route::get('/get-tryout1', [App\Http\Controllers\TryoutController::class, 'test'])->name('tryout1');
 
      
 Route::get('/categories/{id}', [App\Http\Controllers\CategoryController::class, 'detail'])->name('categories-detail');
-Route::get('/exam/{id}', [App\Http\Controllers\ExamController::class, 'detail'])->name('exam');
+Route::get('/get-exam/{id}', [App\Http\Controllers\ExamController::class, 'detail'])->name('exam');
 Route::post('/upload-image', [App\Http\Controllers\ImageUploadController::class, 'upload']);
 // routes/web.php atau routes/api.php (tergantung kamu pakai yang mana)
 Route::post('/delete-image', [App\Http\Controllers\ImageUploadController::class, 'delete'])->name('image.delete');
@@ -54,9 +56,9 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/bank-soal/statistics', [App\Http\Controllers\BankSoalController::class, 'statistics'])->name('bank-soal.statistics');
      Route::get('/bank-soal/history', [App\Http\Controllers\BankSoalController::class, 'history'])->name('bank-soal.history');
-    //exam bank soal
+    //get-exam bank soal
      Route::get('/banksoal/{exam}/result/{id}', [App\Http\Controllers\BanksoalController::class, 'result'])->name('bank-soal-result');
-     Route::post('/exam', [App\Http\Controllers\ExamController::class, 'submit'])->name('exam-submit');
+     Route::post('/get-exam', [App\Http\Controllers\ExamController::class, 'submit'])->name('exam-submit');
 // Route untuk generate ulang AI (akan selalu membuat record baru)
      Route::post('/banksoal/{exam}/result/{id}/generate-ai', [App\Http\Controllers\BanksoalController::class, 'generateAI'])
      ->name('bank-soal-generate-ai');
@@ -64,38 +66,60 @@ Route::group(['middleware' => ['auth']], function() {
 
 
 
-Route::get('/tryout-detail/{slug}', [App\Http\Controllers\TryoutController::class, 'show'])->name('tryout-detail');
-    Route::get('/tryout/{exam}/{subtest}', [App\Http\Controllers\TryoutExamController::class, 'exam'])->name('tryout-subtest');
-     Route::post('/tryout/{exam}/{subtest}', [App\Http\Controllers\TryoutExamController::class, 'submit'])
+Route::get('/get-tryout-detail/{slug}', [App\Http\Controllers\TryoutController::class, 'show'])->name('tryout-detail');
+    Route::get('/get-tryout/{exam}/{subtest}', [App\Http\Controllers\TryoutExamController::class, 'exam'])->name('tryout-subtest');
+     Route::post('/get-tryout/{exam}/{subtest}', [App\Http\Controllers\TryoutExamController::class, 'submit'])
           ->name('tryout-submit');
-     Route::get('/tryout/{exam}/{subCategory}/interstitial', [App\Http\Controllers\TryoutExamController::class, 'interstitial'])
+     Route::get('/get-tryout/{exam}/{subCategory}/interstitial', [App\Http\Controllers\TryoutExamController::class, 'interstitial'])
           ->name('subtest-interstitial');
-     Route::get('/tryout/{exam}/finish', [App\Http\Controllers\TryoutExamController::class, 'finish'])
+     Route::get('/get-tryout/{exam}/finish', [App\Http\Controllers\TryoutExamController::class, 'finish'])
           ->name('tryout-finish');
-     Route::get('/tryout/{exam}/result/{id}', [App\Http\Controllers\TryoutController::class, 'result'])->name('tryout-result');
-     Route::get('/tryout/{exam}/review/{subCategory}/{question}', [App\Http\Controllers\TryoutController::class, 'review'])->name('tryout.review');
-     Route::get('/tryout/{exam}/result/{id}/leaderboard', [App\Http\Controllers\TryoutResultsController::class, 'leaderboard'])->name('tryout-leaderboard');
-     Route::get('/tryout/{exam}/result/{id}/evaluation', [App\Http\Controllers\TryoutResultsController::class, 'evaluation'])->name('tryout-evaluation');
-     Route::get('/tryout/{exam}/result/{id}/reccomendation', [App\Http\Controllers\TryoutResultsController::class, 'recommendation'])->name('tryout-recommendation');
+     Route::get('/get-tryout/{exam}/result/{id}', [App\Http\Controllers\TryoutController::class, 'result'])->name('tryout-result');
+     Route::get('/get-tryout/{exam}/review/{subCategory}/{question}', [App\Http\Controllers\TryoutController::class, 'review'])->name('tryout.review');
+     Route::get('/get-tryout/{exam}/result/{id}/leaderboard', [App\Http\Controllers\TryoutResultsController::class, 'leaderboard'])->name('tryout-leaderboard');
+     Route::get('/get-tryout/{exam}/result/{id}/evaluation', [App\Http\Controllers\TryoutResultsController::class, 'evaluation'])->name('tryout-evaluation');
+     Route::get('/get-tryout/{exam}/result/{id}/reccomendation', [App\Http\Controllers\TryoutResultsController::class, 'recommendation'])->name('tryout-recommendation');
      // Route untuk generate ulang recommendation AI
      Route::post('/exams/{exam}/results/{id}/recommendation/generate-recommendation', [App\Http\Controllers\TryoutResultsController::class, 'generateRecommendation'])
           ->name('tryout-generate-recommendation');
      Route::post('/exams/{exam}/results/{id}/evaluation/generate-evaluation', [App\Http\Controllers\TryoutResultsController::class, 'generateEvaluation'])
           ->name('tryout-generate-evaluation');
-     Route::get('/tryout/{exam}/result/{id}/ranking-university', [App\Http\Controllers\TryoutResultsController::class, 'university'])->name('tryout-university');
+     Route::get('/get-tryout/{exam}/result/{id}/ranking-university', [App\Http\Controllers\TryoutResultsController::class, 'university'])->name('tryout-university');
     Route::get('/register/success', [App\Http\Controllers\Auth\RegisterController::class, 'success'])->name('register-success');
     Route::get('/dashboard/settings', [App\Http\Controllers\DashboardSettingController::class, 'store'])->name('dashboard-settings-store');
     Route::get('/dashboard/account', [App\Http\Controllers\DashboardSettingController::class, 'account'])->name('dashboard-settings-account');
     Route::post('/dashboard/account/{redirect}', [App\Http\Controllers\DashboardSettingController::class, 'update'])->name('dashboard-settings-redirect');
+
+
+     Route::resource('exam', \App\Http\Controllers\Admin\ExamController::class);
+    Route::resource('tryout', \App\Http\Controllers\Admin\TryoutController::class);
 
 });
 //
 Route::prefix('mitra')->group(function () {
      Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'mitra'])-> name('mitra-dashboard');
     // Resource routes
-    Route::resource('exam', \App\Http\Controllers\Admin\ExamController::class);
-    Route::resource('tryout', \App\Http\Controllers\Admin\TryoutController::class);
-    Route::resource('nilai-tryout', \App\Http\Controllers\Admin\TryoutScoreController::class);
+   
+
+    // Soal
+    Route::resource('question', \App\Http\Controllers\Admin\QuestionController::class);
+  
+
+});
+
+
+Route::prefix('admin')
+->namespace('Admin')
+->middleware(['auth','admin'])
+->group(function() {
+    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index']) -> name('admin-dashboard');
+    route::resource('category', '\App\Http\Controllers\Admin\CategoryController'); 
+    route::resource('subcategory', '\App\Http\Controllers\Admin\SubCategoryController'); 
+    route::resource('university', '\App\Http\Controllers\Admin\universityController'); 
+    route::resource('major', '\App\Http\Controllers\Admin\majorController'); 
+    route::resource('user', '\App\Http\Controllers\Admin\UserController'); 
+    route::resource('blog', '\App\Http\Controllers\Admin\BlogController'); 
+    Route::resource('nilai-tryout', '\App\Http\Controllers\Admin\TryoutScoreController');
 
     // Halaman IRT Analysis
     Route::get('/nilai-tryout/{slug}/irt-analysis', [\App\Http\Controllers\Admin\TryoutScoreController::class, 'show'])
@@ -116,23 +140,6 @@ Route::prefix('mitra')->group(function () {
     // Response data per kategori (AJAX)
     Route::get('/nilai-tryout/{slug}/response-data/{category}', [\App\Http\Controllers\Admin\TryoutScoreController::class, 'responseData'])
          ->name('irt.response-data');
-
-    // Soal
-    Route::resource('question', \App\Http\Controllers\Admin\QuestionController::class);
-
-});
-
-
-Route::prefix('admin')
-->namespace('Admin')
-->middleware(['auth','admin'])
-->group(function() {
-    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index']) -> name('admin-dashboard');
-    route::resource('category', '\App\Http\Controllers\Admin\CategoryController'); 
-    route::resource('subcategory', '\App\Http\Controllers\Admin\SubCategoryController'); 
-    route::resource('university', '\App\Http\Controllers\Admin\universityController'); 
-    route::resource('major', '\App\Http\Controllers\Admin\majorController'); 
-    route::resource('user', '\App\Http\Controllers\Admin\UserController'); 
 
 });
 Auth::routes();

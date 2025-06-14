@@ -68,7 +68,7 @@ Hasil Ujian & Evaluasi AI
                                             ? 'btn-outline-secondary'
                                             : ($detail->correct ? 'btn-success' : 'btn-danger');
                             @endphp
-                            <a href="{{ route('exam.review', ['exam' => $result->exam_id, 'question' => $detail->question_id]) }}"
+                            <a style="margin-right: 8px; margin-bottom: 8px;" href="{{ route('exam.review', ['exam' => $result->exam_id, 'question' => $detail->question_id]) }}"
                                class="btn {{ $btnClass }} btn-sm"
                                title="{{ $detail->correct ? 'Benar' : 'Salah' }}">
                                 {{ $globalIndex + 1 }}
@@ -184,14 +184,6 @@ Hasil Ujian & Evaluasi AI
         <a href="{{ route('exam', $result->exam->slug) }}" 
            class="btn btn-primary me-2">
             <i class="fas fa-redo me-1"></i> Ulangi Ujian
-        </a>
-        <a href="{{ route('dashboard') }}" 
-           class="btn btn-outline-secondary me-2">
-            <i class="fas fa-home me-1"></i> Kembali ke Dashboard
-        </a>
-        <a href="#" onclick="window.print()" 
-           class="btn btn-outline-info">
-            <i class="fas fa-print me-1"></i> Cetak Hasil
         </a>
     </div>
 </div>

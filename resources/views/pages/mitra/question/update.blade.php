@@ -80,14 +80,6 @@ $questionTextFixed = old('question_text', isset($question->question_text) ? fixI
             </select>
         </div>
 
-        @php
-$explanationFixed = old('explanation', isset($question->explanation) ? fixImageUrls($question->explanation) : '');
-@endphp
-
-<div class="form-group">
-    <label for="explanation">Penjelasan</label>
-    <textarea name="explanation" id="explanation" class="form-control tiny-editor">{!! $explanationFixed !!}</textarea>
-</div>
 
         <div class="form-group">
             <label for="lesson">Pelajaran (Lesson)</label>
@@ -284,8 +276,51 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+              @php
+$explanationFixed = old('explanation', isset($question->explanation) ? fixImageUrls($question->explanation) : '');
+@endphp
+
+        <div class="form-group">
+    <label for="explanation">Penjelasan</label>
+    <textarea name="explanation" id="explanation" class="form-control tiny-editor">{!! $explanationFixed !!}</textarea>
+</div>
+
+        <div class="form-group">
+            <label for="difficulty">Tingkat Kesulitan</label>
+            <select name="difficulty" id="difficulty" class="form-control" required>
+                <option value="Mudah"  {{ old('difficulty', $question->difficulty)=='Mudah'  ? 'selected':'' }}>Mudah</option>
+                <option value="Sedang" {{ old('difficulty', $question->difficulty)=='Sedang' ? 'selected':'' }}>Sedang</option>
+                <option value="Sulit"  {{ old('difficulty', $question->difficulty)=='Sulit'  ? 'selected':'' }}>Sulit</option>
+            </select>
+            @error('difficulty')
+            <small class="text-danger">{{ $message }}</small>
+            @enderror
+        </div>
+
+       @php
+    $user = Auth::user();
+@endphp
+
+    {{-- Hanya tampilkan bila role user bukan admin --}}
+    <div class="form-group d-none">
+        <label for="status">Status Review</label>
+        <select name="status" id="status" class="form-control" required>
+            <option value="Ditinjau"  {{ old('status', $question->status)=='Ditinjau'  ? 'selected':'' }}>Ditinjau</option>
+            <option value="Diterima"  {{ old('status', $question->status)=='Diterima'  ? 'selected':'' }}>Diterima</option>
+            <option value="Ditolak"   {{ old('status', $question->status)=='Ditolak'   ? 'selected':'' }}>Ditolak</option>
+        </select>
+    </div>
+    <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ route('exam.show', $question->exam->slug) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Ujian
+        </a>
+         <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+    </div>
+
+
+       
     </form>
+     
 </div>
 @endsection
 
