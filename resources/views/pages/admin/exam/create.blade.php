@@ -15,8 +15,8 @@
             </ul>
         </div>
     @endif
-    <div class="container">
-        <h1>Buat Bank Soal Baru</h1>
+    <div class="container mt-5">
+        <h1>Buat Latihan Soal Baru</h1>
 
         <form action="{{ route('exam.store') }}" method="POST">
             @csrf
@@ -24,11 +24,6 @@
             <div class="form-group">
                 <label for="title">Nama Latihan Soal</label>
                 <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Deskripsi</label>
-                <textarea name="description" id="description" rows="3" class="form-control" >{{ old('description') }}</textarea>
             </div>
 
 

@@ -46,7 +46,7 @@ class TryoutController extends Controller
     {
         $users = User::all();
         $subcategories = SubCategory::all();
-        return view('pages.mitra.tryout.create', [
+        return view('pages.admin.tryout.create', [
             'users'          => $users,
             'sub_categories' => $subcategories,
         ]);
@@ -141,7 +141,7 @@ class TryoutController extends Controller
         $users = User::all();
         $subcategories = SubCategory::all();
 
-        return view('pages.mitra.tryout.edit', [
+        return view('pages.admin.tryout.edit', [
             'exam'           => $exam,
             'users'          => $users,
             'sub_categories' => $subcategories,

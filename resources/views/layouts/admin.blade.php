@@ -33,23 +33,35 @@
               class="list-group-item list-group-item-action {{ (request()->is('admin**')) ? 'active' : '' }} "
               >Dashboard</a
             >
-            <a
-              href="{{ route('category.index') }}" 
-              class="list-group-item list-group-item-action {{ (request()->is('admin/category*')) ? 'active' : '' }} "
-              >Kategori Ujian</a
-            >
-            <a
-              href="{{ route('subcategory.index') }}" 
-              class="list-group-item list-group-item-action {{ (request()->is('admin/subcategory*')) ? 'active' : '' }} "
-              >Mata Pelajaran</a
-            >
+            <div class="list-group-item p-0">
+  <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+     data-bs-toggle="collapse" 
+     href="#examMenu" 
+     role="button" 
+     aria-expanded="false" 
+     aria-controls="examMenu">
+    Data Ujian
+    <i class="bi bi-chevron-down"></i>
+  </a>
+  <div class="collapse {{ request()->is('admin/category*') || request()->is('admin/subcategory*') ? 'show' : '' }}" id="examMenu">
+    <a href="{{ route('category.index') }}" 
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('admin/category*') ? 'active' : '' }}">
+      Kategori Ujian
+    </a>
+    <a href="{{ route('subcategory.index') }}" 
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('admin/subcategory*') ? 'active' : '' }}">
+      Mata Pelajaran
+    </a>
+  </div>
+</div>
+
                 <div class="list-group">
                 <a href="#dropdownTryout" 
                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
                   data-bs-toggle="collapse" 
                   aria-expanded="{{ request()->is('exam*') || request()->is('tryout*') || request()->is('nilai-tryout*') ? 'true' : 'false' }}" 
                   aria-controls="dropdownTryout">
-                  Tryout Menu
+                  Jenis Ujian
                   <i class="fas fa-chevron-down"></i>
                 </a>
 
@@ -72,26 +84,55 @@
               class="list-group-item list-group-item-action {{ (request()->is('admin/user*')) ? 'active' : '' }} "
               >Users</a
             >
-             <a
-              href="{{ route('university.index') }}" 
-              class="list-group-item list-group-item-action {{ (request()->is('admin/university*')) ? 'active' : '' }} "
-              >Universitas</a
-            >
-             <a
-              href="{{ route('major.index') }}" 
-              class="list-group-item list-group-item-action {{ (request()->is('admin/major*')) ? 'active' : '' }} "
-              >Program Studi</a
-            >
+             <div class="list-group-item p-0">
+  <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+     data-bs-toggle="collapse" 
+     href="#universityMenu" 
+     role="button" 
+     aria-expanded="false" 
+     aria-controls="universityMenu">
+    Data Pendidikan
+    <i class="bi bi-chevron-down"></i> {{-- Bootstrap icon, atau ganti pakai FontAwesome --}}
+  </a>
+  <div class="collapse {{ request()->is('admin/university*') || request()->is('admin/major*') ? 'show' : '' }}" id="universityMenu">
+    <a href="{{ route('university.index') }}" 
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('admin/university*') ? 'active' : '' }}">
+      Universitas
+    </a>
+    <a href="{{ route('major.index') }}" 
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('admin/major*') ? 'active' : '' }}">
+      Program Studi
+    </a>
+  </div>
+</div>
+
              <a
               href="{{ route('blog.index') }}" 
               class="list-group-item list-group-item-action {{ (request()->is('admin/blog*')) ? 'active' : '' }} "
               >Blog</a
             >
-             <a
-              href="{{ route('dashboard-settings-account') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('dashboard/account*')) ? 'active' : '' }}"
-              >My Account</a
-            >
+             <div class="list-group-item p-0">
+  <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+     data-bs-toggle="collapse" 
+     href="#accountSettingsMenu" 
+     role="button" 
+     aria-expanded="false" 
+     aria-controls="accountSettingsMenu">
+    Pengaturan Akun
+    <i class="bi bi-chevron-down"></i>
+  </a>
+  <div class="collapse {{ request()->is('dashboard/settings*') || request()->is('dashboard/account*') ? 'show' : '' }}" id="accountSettingsMenu">
+    <a href="{{ route('dashboard-settings-store') }}"
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('dashboard/settings*') ? 'active' : '' }}">
+      Ganti Password
+    </a>
+    <a href="{{ route('dashboard-settings-account') }}"
+       class="list-group-item list-group-item-action ps-4 {{ request()->is('dashboard/account*') ? 'active' : '' }}">
+      Akun Saya
+    </a>
+  </div>
+</div>
+ 
             <a
               href="{{ route('home') }}" onclick="event.preventDefault();
                                   document.getElementById('logout-form').submit();"

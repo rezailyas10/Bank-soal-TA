@@ -46,8 +46,14 @@ class ExamController extends Controller
    public function create()
     {
         $users = User::all();
+         $user = Auth::user();
         $subcategories = SubCategory::all();
-        return view('pages.mitra.exam.create', [
+         if ($user->roles === 'ADMIN') {
+        $view = 'pages.admin.exam.create';
+        } elseif ($user->roles === 'MITRA') {
+            $view = 'pages.mitra.exam.create';
+        }
+        return view($view, [
             'users'          => $users,
             'sub_categories' => $subcategories,
         ]);
@@ -138,8 +144,14 @@ class ExamController extends Controller
         $exam = Exam::findOrFail($id);
         $users = User::all();
         $subcategories = SubCategory::all();
+        $user = Auth::user();
+ if ($user->roles === 'ADMIN') {
+        $view = 'pages.admin.exam.edit';
+        } elseif ($user->roles === 'MITRA') {
+            $view = 'pages.mitra.exam.edit';
+        }
 
-       return view('pages.mitra.exam.edit', [
+       return view($view, [
         'exam' => $exam,
         'users' => $users,
         'subcategories' => $subcategories,

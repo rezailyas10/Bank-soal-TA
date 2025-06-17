@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title')
-  Buat Bank Soal Baru
+  Buat Tryout Baru
 @endsection
 
 @section('content')
@@ -21,7 +21,7 @@
             </ul>
         </div>
     @endif
-    <div class="container">
+    <div class="container mt-5">
         <h1>Buat Tryout Baru</h1>
 
         <form action="{{ route('tryout.store') }}" method="POST">
@@ -32,10 +32,6 @@
                 <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required>
             </div>
 
-            <div class="form-group">
-                <label for="description">Deskripsi</label>
-                <textarea name="description" id="description" rows="3" class="form-control" >{{ old('description') }}</textarea>
-            </div>
             <input type="hidden" name="exam_type" id="exam_type" value="tryout">
                          
     

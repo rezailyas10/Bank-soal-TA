@@ -1,4 +1,23 @@
-@extends('layouts.dashboard')
+@php
+    switch (auth()->user()->roles) {
+        case 'ADMIN':
+            $layout = 'layouts.admin';
+            break;
+        case 'MITRA':
+            $layout = 'layouts.mitra';
+            break;
+        case 'USER':
+            $layout = 'layouts.dashboard';
+            break;
+        default:
+            $layout = 'layouts.dasboard'; // fallback layout kalau role tidak dikenali
+            break;
+    }
+@endphp
+
+@extends($layout)
+
+
 
 @section('title')
   Change Password

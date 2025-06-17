@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="container">
+<div class="container mt-5">
      <!-- Notifikasi sukses -->
      @if(session('success'))
      <div class="alert alert-success">
@@ -36,10 +36,6 @@
              <textarea name="question_text" id="question_text" rows="3" class="form-control tiny-editor" >{{ old('question_text') }}</textarea>
         </div>
 
-        <div class="form-group">
-            <label for="photos">Foto (Opsional)</label>
-            <input type="file" name="photo" id="photos" class="form-control">
-        </div>
 
         <div class="form-group">
             <label for="question_type">Tipe Soal</label>

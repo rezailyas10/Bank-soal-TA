@@ -225,7 +225,7 @@
                 <div class="tryout-meta">
                   <div class="tryout-meta-item">
                     <i class="fas fa-dumbbell"></i>
-                    Latihan
+                    Tryout
                   </div>
                   <div class="tryout-meta-item">
                     <i class="fas fa-users"></i>

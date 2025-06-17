@@ -59,7 +59,6 @@
             <thead>
                 <tr>
                     <th>Nama tryout</th>
-                    <th>Deskripsi</th>
                     <th>Status</th>
                     <th>Dibuat Oleh</th>
                     <th>Tipe Ujian</th>
@@ -72,11 +71,6 @@
                 <tr>
                     <td>
                         <strong>{{ $exam->title }}</strong>
-                    </td>
-                    <td>
-                        <div class="table-description" title="{!! strip_tags($exam->description) !!}">
-                            {!! Str::limit(strip_tags($exam->description), 50) !!}
-                        </div>
                     </td>
                     <td>
                         <span class="status-badge {{ $exam->is_published ? 'status-published' : 'status-unpublished' }}">
