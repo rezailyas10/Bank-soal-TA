@@ -30,7 +30,7 @@ data-aos="fade-down"
     <li class="nav-item">
       <a
         class="btn btn-success nav-link px-4 text-white"
-        href="{{ route('login') }}"
+        href="{{ route('login', ['redirect_to' => url()->current()]) }}"
         >Log In</a
       >
     </li>

@@ -43,8 +43,8 @@ class DashboardController extends Controller
     // Tentukan view berdasarkan role
     if ($user->roles === 'ADMIN') {
         $view = 'pages.admin.dashboard';
-    } elseif ($user->roles === 'MITRA') {
-        $view = 'pages.mitra.dashboard';
+    } elseif ($user->roles === 'KONTRIBUTOR') {
+        $view = 'pages.kontributor.dashboard';
     } elseif ($user->roles === 'USER') {
         // Hitung total pengerjaan user
         $total_attempts = Result::where('user_id', $user->id)->count();

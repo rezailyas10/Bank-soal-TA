@@ -1040,7 +1040,7 @@ CREATE TABLE `users` (
   `regencies_id` int DEFAULT NULL,
   `country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `phone_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `roles` enum('USER','ADMIN','MITRA') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'USER',
+  `roles` enum('USER','ADMIN','KONTRIBUTOR') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'USER',
   `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -1053,7 +1053,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `username`, `email_verified_at`, `password`, `photos`, `province_id`, `regencies_id`, `country`, `phone_number`, `roles`, `remember_token`, `deleted_at`, `created_at`, `updated_at`) VALUES
 (1, 'Reza Nurfa Ilyas', 'rezailyas39@gmail.com', 'rezailyas101', NULL, '$2y$12$nCBDxAKJdwqQsbPDZ9opkevX2BBVjPsvVL.FTg1nEzY6HA5N2Nofe', NULL, NULL, NULL, NULL, NULL, 'USER', NULL, NULL, '2025-03-26 06:15:11', '2025-06-05 04:32:03'),
-(2, 'Budi Hartono', 'budi@gmail.com', 'budihartono12', NULL, '$2y$12$aA8SvMIVBwpDKjb8F6zqOurvMUy641PMi08OXHGsPQhtnHi.57UcG', NULL, NULL, NULL, NULL, NULL, 'MITRA', NULL, NULL, '2025-03-26 06:26:46', '2025-03-26 06:26:46'),
+(2, 'Budi Hartono', 'budi@gmail.com', 'budihartono12', NULL, '$2y$12$aA8SvMIVBwpDKjb8F6zqOurvMUy641PMi08OXHGsPQhtnHi.57UcG', NULL, NULL, NULL, NULL, NULL, 'KONTRIBUTOR', NULL, NULL, '2025-03-26 06:26:46', '2025-03-26 06:26:46'),
 (3, 'Andi', 'andi13@gmail.com', 'Andiil12', NULL, '$2y$12$HaBLPpIrkCUE1DmL.LXRRe.TuWxRJY4/lTbcNUeCNXii8yX3bC6GO', NULL, NULL, NULL, NULL, NULL, 'USER', NULL, NULL, '2025-05-15 03:15:15', '2025-06-11 12:01:14'),
 (4, 'Ilyas', 'ilyas123@gmail.com', 'ilyas123', NULL, '$2y$12$mzj2Oi8gQiwoEjWvv6O34ezzrOzmlFIrNqHXfLwmKDORyvmsMgW1.', NULL, NULL, NULL, NULL, NULL, 'ADMIN', NULL, NULL, '2025-05-22 03:18:34', '2025-05-22 03:18:34'),
 (5, 'Fajar Nooer', 'fajar123@gmail.com', 'FajarNoer123', NULL, '$2y$12$qDI1cUe9GuAhE4559LQo2eeHdA3lQ7Ef0pOYlKLciBIJYPeptqvly', NULL, NULL, NULL, NULL, NULL, 'USER', NULL, NULL, '2025-05-28 02:47:53', '2025-05-28 02:47:53'),

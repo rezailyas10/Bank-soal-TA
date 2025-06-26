@@ -13,14 +13,38 @@
         </div>
     @endif
 
+    @php
+    if (!function_exists('fixImageUrls')) {
+        function fixImageUrls($html) {
+            return preg_replace_callback(
+                '/src="([^"]+)"/i',
+                function ($matches) {
+                    $url = $matches[1];
+                    if (preg_match('/^http(s)?:\/\//', $url)) {
+                        return 'src="' . $url . '"';
+                    } else {
+                        return 'src="' . asset($url) . '"';
+                    }
+                },
+                $html
+            );
+        }
+    }
+    @endphp
+
     <h1>Detail tryout: {{ $exam->title }}</h1>
     
     <div class="card mb-3">
         <div class="card-body">
-            <p><strong>Deskripsi:</strong> {!! $exam->description !!}</p>
             <p><strong>Tipe Ujian:</strong> {{ $exam->exam_type }}</p>
             <p><strong>Published:</strong> {{ $exam->is_published ? 'Ya' : 'Tidak' }}</p>
             <p><strong>Dibuat Oleh:</strong> {{ $exam->created_by }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <a href="{{ route('question.create', ['exam_id' => $exam->id]) }}" class="btn btn-primary">Tambah Pertanyaan</a>
         </div>
     </div>
 
@@ -42,24 +66,15 @@
     <h3>Pertanyaan</h3>
     
     @if($exam->questions->count() > 0)
-        <!-- Filter berdasarkan mata pelajaran -->
+        <!-- Filter: subCategory, status, dan pembuat -->
         <div class="row mb-3">
             <div class="col-md-4">
                 <label for="subCategoryFilter">Filter berdasarkan Mata Pelajaran:</label>
                 <select id="subCategoryFilter" class="form-control">
                     <option value="">Semua Mata Pelajaran</option>
                     @foreach($exam->questions->groupBy('subCategory.name') as $subCategoryName => $questions)
-                        <option value="{{ $subCategoryName }}">{{ $subCategoryName }} ({{ $questions->count() }})</option>
+                        <option value="{{ strtolower($subCategoryName) }}">{{ $subCategoryName }} ({{ $questions->count() }})</option>
                     @endforeach
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label for="difficultyFilter">Filter berdasarkan Tingkat Kesulitan:</label>
-                <select id="difficultyFilter" class="form-control">
-                    <option value="">Semua Tingkat</option>
-                    <option value="mudah">Mudah</option>
-                    <option value="sedang">Sedang</option>
-                    <option value="susah">Susah</option>
                 </select>
             </div>
             <div class="col-md-4">
@@ -70,6 +85,24 @@
                     <option value="diterima">Diterima</option>
                     <option value="ditolak">Ditolak</option>
                 </select>
+            </div>
+            <div class="col-md-4">
+                <label for="creatorFilter">Filter Pembuat:</label>
+                <select id="creatorFilter" class="form-control">
+                    <option value="">Semua</option>
+                    <option value="mine">Hanya Saya</option>
+                </select>
+            </div>
+             <div class="col-md-12">
+                <form method="GET" class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <label for="search">Cari Pertanyaan:</label>
+                        <input type="text" name="search" id="search" value="{{ request('search') }}" class="form-control" placeholder="Cari pertanyaan...">
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" class="btn btn-primary mt-1">Cari</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -82,7 +115,6 @@
                         <th>Pertanyaan</th>
                         <th>Mata Pelajaran</th>
                         <th>Pembuat</th>
-                        <th>Tingkat Kesulitan</th>
                         <th>Tipe Soal</th>
                         <th>Status</th>
                         <th>Aksi</th>
@@ -90,14 +122,25 @@
                 </thead>
                 <tbody>
                     @foreach($exam->questions as $index => $question)
+                        @php
+                            $rawHtml = old('question_text', $question->question_text ?? '');
+                            $fixedHtml = fixImageUrls($rawHtml);
+                            $textOnly = strip_tags($fixedHtml);
+                            $isOnlyImage = trim($textOnly) === '';
+                        @endphp
+
                         <tr class="question-row" 
-                            data-subcategory="{{ $question->subCategory->name ?? '' }}"
-                            data-difficulty="{{ strtolower($question->difficulty ?? '') }}"
-                            data-status="{{ strtolower($question->status ?? 'ditinjau') }}">
-                            <td>{{ $index + 1 }}</td>
+                            data-subcategory="{{ strtolower($question->subCategory->name ?? '') }}"
+                            data-status="{{ strtolower($question->status ?? 'ditinjau') }}"
+                            data-user-id="{{ $question->user_id }}">
+                             <td>{{ $loop->iteration }}</td>
                             <td>
-                                <div class="question-text">
-                                    {!! Str::limit(strip_tags($question->question_text), 80) !!}
+                                <div class="question-text" style="max-height: 80px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+                                    @if ($isOnlyImage)
+                                        {!! $fixedHtml !!}
+                                    @else
+                                        {!! Str::limit(strip_tags($fixedHtml), 80) !!}
+                                    @endif
                                 </div>
                             </td>
                             <td>
@@ -113,25 +156,14 @@
                                 </small>
                             </td>
                             <td>
-                                @if(strtolower($question->difficulty ?? '') == 'mudah')
-                                    <span class="badge badge-success">Mudah</span>
-                                @elseif(strtolower($question->difficulty ?? '') == 'sedang')
-                                    <span class="badge badge-warning">Sedang</span>
-                                @elseif(strtolower($question->difficulty ?? '') == 'susah')
-                                    <span class="badge badge-danger">Susah</span>
-                                @else
-                                    <span class="badge badge-secondary">Tidak Ditentukan</span>
-                                @endif
-                            </td>
-                            <td>
                                 <span class="badge badge-primary">{{ ucfirst($question->question_type) }}</span>
                             </td>
                             <td>
-                                @if(strtolower($question->status ?? 'ditinjau') == 'diterima')
+                                @if($question->status == 'Diterima')
                                     <span class="badge badge-success">Diterima</span>
-                                @elseif(strtolower($question->status ?? 'ditinjau') == 'ditolak')
+                                @elseif($question->status == 'Ditolak')
                                     <span class="badge badge-danger">Ditolak</span>
-                                @elseif(strtolower($question->status ?? 'ditinjau') == 'ditinjau')
+                                @elseif($question->status == 'Ditinjau')
                                     <span class="badge badge-warning">Ditinjau</span>
                                 @else
                                     <span class="badge badge-secondary">Tidak Diketahui</span>
@@ -149,6 +181,18 @@
                                        title="Edit">
                                         <i class="fas fa-edit"></i> Update
                                     </a>
+                                    @if ($question->user_id === Auth::id())
+                                        <form action="{{ route('question.destroy', $question->id) }}" 
+                                                method="POST" 
+                                                class="d-inline-block" 
+                                                onsubmit="return confirm('Anda yakin ingin menghapus pertanyaan ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger" title="Hapus">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                    </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -176,28 +220,34 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const subCategoryFilter = document.getElementById('subCategoryFilter');
-    const difficultyFilter = document.getElementById('difficultyFilter');
     const statusFilter = document.getElementById('statusFilter');
+    const creatorFilter = document.getElementById('creatorFilter');
     const questionRows = document.querySelectorAll('.question-row');
     const visibleQuestionsSpan = document.getElementById('visibleQuestions');
 
+    // ambil user id saat ini untuk filter "Hanya Saya"
+    const currentUserId = @json(auth()->user()->id);
+
     function filterQuestions() {
         const subCategoryValue = subCategoryFilter.value.toLowerCase();
-        const difficultyValue = difficultyFilter.value.toLowerCase();
         const statusValue = statusFilter.value.toLowerCase();
+        const creatorValue = creatorFilter.value; // "" atau "mine"
         
         let visibleCount = 0;
 
         questionRows.forEach(row => {
-            const rowSubCategory = row.dataset.subcategory.toLowerCase();
-            const rowDifficulty = row.dataset.difficulty.toLowerCase();
-            const rowStatus = row.dataset.status.toLowerCase();
+            const rowSubCategory = row.dataset.subcategory;
+            const rowStatus = row.dataset.status;
+            const rowUserId = row.dataset.userId;
 
             const matchSubCategory = !subCategoryValue || rowSubCategory.includes(subCategoryValue);
-            const matchDifficulty = !difficultyValue || rowDifficulty === difficultyValue;
             const matchStatus = !statusValue || rowStatus === statusValue;
-
-            if (matchSubCategory && matchDifficulty && matchStatus) {
+            let matchCreator = true;
+            if (creatorValue === 'mine') {
+                matchCreator = String(rowUserId) === String(currentUserId);
+            }
+            // jika semua cocok, tampilkan
+            if (matchSubCategory && matchStatus && matchCreator) {
                 row.style.display = '';
                 visibleCount++;
             } else {
@@ -209,8 +259,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     subCategoryFilter.addEventListener('change', filterQuestions);
-    difficultyFilter.addEventListener('change', filterQuestions);
     statusFilter.addEventListener('change', filterQuestions);
+    creatorFilter.addEventListener('change', filterQuestions);
 });
 </script>
 

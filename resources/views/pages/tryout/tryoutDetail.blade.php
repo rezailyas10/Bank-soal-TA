@@ -159,7 +159,7 @@
                             Kerjakan Sekarang
                             </a>
                         @else
-                            <a href="{{ route('login') }}" class="btn btn-warning">
+                            <a href="{{ route('login', ['redirect_to' => url()->current()]) }}" class="btn btn-warning">
                                 Login untuk Mulai
                             </a>
                         @endif

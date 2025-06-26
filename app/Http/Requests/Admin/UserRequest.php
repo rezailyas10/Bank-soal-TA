@@ -24,7 +24,7 @@ class UserRequest extends FormRequest
         return [
         'name'=>'required|string|max:50',
         'username'=>'required|string|max:50',
-        'roles'=>'nullable|string|in:ADMIN,USER,MITRA'
+        'roles'=>'nullable|string|in:ADMIN,USER,KONTRIBUTOR'
         ];
     }
 }

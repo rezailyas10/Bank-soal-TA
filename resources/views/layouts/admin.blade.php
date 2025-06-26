@@ -17,6 +17,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     @stack('addon-style')
+    <style>
+       .creator-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+}
+    </style>
   </head>
 
   <body>
@@ -137,7 +151,9 @@
               href="{{ route('home') }}" onclick="event.preventDefault();
                                   document.getElementById('logout-form').submit();"
               class="list-group-item list-group-item-action"
-              >Sign Out</a
+              >
+               <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
+              Sign Out</a
             >
             
           </div>
@@ -181,12 +197,15 @@
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    <img
-                      src="/images/icon-user.png"
-                      alt=""
-                      class="rounded-circle mr-2 profile-picture"
-                    />
-                    Hi, {{ Auth::user()->name }}
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div class="creator-avatar">
+                          {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                      </div>
+                      <div>
+                          Hi, {{ Auth::user()->name }}
+                      </div>
+                  </div>
+
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="/index.html"
@@ -230,6 +249,7 @@
 
           <!-- Logout Form -->
 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+   <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
   @csrf
 </form>
 

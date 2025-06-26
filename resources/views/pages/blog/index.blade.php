@@ -13,7 +13,7 @@
                 <div class="d-flex justify-content-center">
                     <div class="bg-white bg-opacity-20 backdrop-blur rounded-pill px-4 py-2">
                         <i class="fas fa-book-open me-2"></i>
-                        <span>{{ $blogs->total() }} Total Artikel</span>
+                        <span style="color: black">{{ $blogs->total() }} Total Artikel</span>
                     </div>
                 </div>
             </div>

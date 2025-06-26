@@ -1,14 +1,14 @@
-@extends('layouts.mitra')
+@extends('layouts.kontributor')
 
 @section('title')
-  Mitra Dashboard
+  Kontributor Dashboard
 @endsection
 
 @section('content')
 <div class="section-content section-dashboard-home" data-aos="fade-up">
   <div class="container-fluid">
     <div class="dashboard-heading mb-4">
-      <h2 class="dashboard-title">Dashboard Mitra</h2>
+      <h2 class="dashboard-title">Dashboard Kontributor</h2>
       <p class="dashboard-subtitle text-muted">
         Kelola pertanyaan dan ujian Anda
       </p>

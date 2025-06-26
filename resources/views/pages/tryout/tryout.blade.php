@@ -71,11 +71,17 @@
           <div class="tryout-grid" data-aos="fade-up">
             @foreach($myTryouts as $index => $exam)
               @php
-                $result = $userResults[$exam->id];
-                $linkUrl = route('tryout-result', ['exam' => $exam->id, 'id' => $result->id]);
-              @endphp
+                $result = $userResults[$exam->id] ?? null;
+                $isClosed = \Carbon\Carbon::parse($exam->tanggal_ditutup)->lessThanOrEqualTo(now());
+            @endphp
               
-              <a href="{{ $linkUrl }}" class="tryout-card tryout-card-completed">
+              @if (!$isClosed)
+    {{-- Exam masih dibuka → ke halaman detail --}}
+    <a href="{{ route('tryout-detail', $exam->slug) }}" class="tryout-card tryout-card-urgent">
+@else
+    {{-- Exam sudah ditutup → ke halaman hasil --}}
+    <a href="{{ route('tryout-result', ['exam' => $exam->id, 'id' => $result->id]) }}" class="tryout-card tryout-card-completed">
+@endif
                 <div class="tryout-card-header">
                   <div class="tryout-number">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</div>
                   <div class="tryout-info">
@@ -87,10 +93,20 @@
                 </div>
                 <h4 class="tryout-title">{{ $exam->title }}</h4>
                 <div class="tryout-meta">
-                  <div class="tryout-meta-item">
+                   @if (!$isClosed)
+                    {{-- Exam masih dibuka → ke halaman detail --}}
+                        <div class="tryout-meta-item">
+                           <i class="fas fa-hourglass-end"></i>
+                    Berakhir: {{ Carbon\Carbon::parse($exam->tanggal_ditutup)->format('d M Y ') }}
+                        </div>
+                    @else
+                        {{-- Exam sudah ditutup → ke halaman hasil --}}
+                       <div class="tryout-meta-item">
                     <i class="fas fa-chart-line text-success"></i>
                     Lihat Hasil
                   </div>
+                    @endif
+                  
                   <div class="tryout-meta-item">
                     <i class="fas fa-calendar"></i>
                     {{ Carbon\Carbon::parse($result->created_at)->format('d M Y') }}

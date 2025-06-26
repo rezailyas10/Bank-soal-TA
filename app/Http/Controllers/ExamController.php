@@ -32,7 +32,7 @@ class ExamController extends Controller
             ->with(['questions.multipleChoice', 'questions.multipleOption', 'questions.essay'])
             ->firstOrFail();
 
-    $questions = $exam->questions()->orderBy('id')->get();
+    $questions = $exam->questions()->where('status','Diterima')->orderBy('id')->get();
 
     return view('pages.bank-soal.exam', [
         'exam'      => $exam,
@@ -45,7 +45,7 @@ public function submit(Request $request)
 {
     $user     = Auth::user();
     $exam_id  = $request->input('exam_id');
-    $questions = Question::where('exam_id', $exam_id)->get();
+    $questions = Question::where('exam_id', $exam_id)->where('status','Diterima')->get();
 
     // 1. Cari atau buat Result (per user & exam)
     $result = Result::firstOrCreate(
@@ -118,16 +118,19 @@ public function submit(Request $request)
     }
 
     // simpan detail
+   // Simpan hanya jika soal berstatus 'Diterima'
+if ($question->status === 'Diterima') {
     ResultDetails::updateOrCreate(
-    [
-        'result_id'   => $result->id,
-        'question_id' => $question->id,
-    ],
-    [
-        'answer'      => is_string($answer) || is_null($answer) ? $answer : json_encode($answer),
-        'correct'     => $correct,
-    ]
-);
+        [
+            'result_id'   => $result->id,
+            'question_id' => $question->id,
+        ],
+        [
+            'answer'  => is_string($answer) || is_null($answer) ? $answer : json_encode($answer),
+            'correct' => $correct,
+        ]
+    );
+}
 
 // ResultDetails::create([
 //         'result_id'   => $result->id,

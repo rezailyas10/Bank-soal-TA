@@ -64,7 +64,7 @@
               <button type="submit" :disabled="email_unavailable" class="btn btn-block mt-4 text-light" style="background-color: #1A4F80;">
                 Sign Up Now
               </button>
-              <a href="{{ route('login') }}" class="btn btn-signup btn-block mt-2">
+              <a href="{{ route('login', ['redirect_to' => url()->current()]) }}" class="btn btn-signup btn-block mt-2">
                 Back to Sign In
               </a>
             </form>

@@ -33,6 +33,7 @@ class TryoutExamController extends Controller
         // 3) Ambil hanya questions untuk subcategory ini
         $questions = Question::where('exam_id', $exam->id)
                     ->where('sub_category_id', $subtestId)
+                    ->where('status','Diterima')
                     ->with(['multipleChoice', 'multipleOption', 'essay'])
                     ->inRandomOrder()
                     ->get();
@@ -128,16 +129,19 @@ class TryoutExamController extends Controller
     // ]);
 
     // simpan detail
+   // Simpan hanya jika soal berstatus 'Diterima'
+if ($question->status === 'Diterima') {
     ResultDetails::updateOrCreate(
-    [
-        'result_id'   => $result->id,
-        'question_id' => $question->id,
-    ],
-    [
-        'answer'      => is_string($answer) || is_null($answer) ? $answer : json_encode($answer),
-        'correct'     => $correct,
-    ]
-);
+        [
+            'result_id'   => $result->id,
+            'question_id' => $question->id,
+        ],
+        [
+            'answer'  => is_string($answer) || is_null($answer) ? $answer : json_encode($answer),
+            'correct' => $correct,
+        ]
+    );
+}
 }
 
 // Hitung jumlah jawaban benar dan salah dari resultDetails

@@ -2,8 +2,8 @@
 @section('content')
     @role('ADMIN')
         @include('pages.admin.dashboard')
-    @elserole('MITRA')
-        @include('pages.mitra.dashboard')
+    @elserole('KONTRIBUTOR')
+        @include('pages.kontributor.dashboard')
     @elserole('USER')
         @include('pages.home') <!-- atau dashboard user -->
     @else

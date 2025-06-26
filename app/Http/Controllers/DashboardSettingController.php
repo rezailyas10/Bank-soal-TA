@@ -37,8 +37,8 @@ class DashboardSettingController extends Controller
     // Tentukan view berdasarkan role
     if ($user->roles === 'ADMIN') {
         $view = 'pages.admin.dashboard-account';
-    } elseif ($user->roles === 'MITRA') {
-        $view = 'pages.mitra.dashboard-account';
+    } elseif ($user->roles === 'KONTRIBUTOR') {
+        $view = 'pages.kontributor.dashboard-account';
     } elseif(($user->roles === 'USER')) {
         $view = 'pages.dashboard.dashboard-account';
     }

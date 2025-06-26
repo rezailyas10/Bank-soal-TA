@@ -8,6 +8,11 @@
 
 
 }
+
+/* Hilangkan icon panah bawaan bootstrap */
+.navbar-nav .dropdown-toggle::after {
+    display: none !important;
+}
 /* ISOLASI LOGO - Tidak mempengaruhi elemen lain */
 .navbar-brand {
     display: flex;
@@ -28,6 +33,18 @@
     flex-shrink: 0; /* Logo tidak mengecil saat container sempit */
 }
 
+ .creator-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+}
 
 </style>
 <nav
@@ -51,18 +68,19 @@ data-aos="fade-down"
   </button>
   <div class="collapse navbar-collapse" id="navbarResponsive">
     <ul class="navbar-nav ml-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="{{ route('home') }}">Beranda </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ route('bank-soal') }}">Bank Soal</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ route('tryout') }}">Try Out</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ route('blog') }}">Blog</a>
-      </li>
+     <li class="nav-item {{ Request::is('/') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('home') }}">Beranda</a>
+</li>
+<li class="nav-item {{ Request::is('banksoal*') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('bank-soal') }}">Bank Soal</a>
+</li>
+<li class="nav-item {{ Request::is('get-tryout*') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('tryout') }}">Try Out</a>
+</li>
+<li class="nav-item {{ Request::is('blog*') ? 'active' : '' }}">
+  <a class="nav-link" href="{{ route('blog') }}">Blog</a>
+</li>
+
       {{-- <ul class="navbar-nav d-none d-lg-flex">
         <li class="nav-item dropdown">
           <a
@@ -87,6 +105,39 @@ data-aos="fade-down"
         </li>
        
       </ul> --}}
+        @auth
+      <li class="nav-item dropdown">
+    <a
+      class="nav-link dropdown-toggle"
+      href="#"
+      id="navbarDropdown"
+      role="button"
+      aria-haspopup="true"
+    >
+  
+        <div class="d-flex align-items-center" style="gap: 14px;">
+        <div class="creator-avatar">
+          {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+        </div>
+        <div style="padding-top: 2px;"> <!-- sedikit padding buat posisi lebih rapi -->
+          Hi, {{ Auth::user()->name }}
+        </div>
+      </div>
+  
+    </a>
+
+  </a>
+  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+    <a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a>
+    <a class="dropdown-item" href="{{ route('dashboard-settings-account') }}">Settings</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="{{ route('logout') }}"
+       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+        <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
+       Logout
+    </a>
+  </div>
+</li>
   
       <!-- Mobile Menu -->
       <ul class="navbar-nav d-block d-lg-none">
@@ -101,11 +152,12 @@ data-aos="fade-down"
           </a>
         </li>
       </ul>
+        @endauth
      @guest
     <li class="nav-item">
       <a
   class="btn nav-link px-4 text-white"
-  href="{{ route('login') }}"
+  href="{{ route('login', ['redirect_to' => url()->current()]) }}"
   style="background-color: #1A4F80;">
   Log In
 </a>
@@ -116,32 +168,8 @@ data-aos="fade-down"
 
     @auth
       <!-- Desktop Menu -->
-     <ul class="navbar-nav d-none d-lg-flex">
-      <li class="nav-item dropdown">
-  <a
-    class="nav-link dropdown-toggle"
-    href="#"
-    id="navbarDropdown"
-    role="button"
-    aria-haspopup="true"
-  >
-    <img
-      src="/images/icon-user.png"
-      alt=""
-      class="rounded-circle mr-2 profile-picture"
-    />
-    Hi, {{ Auth::user()->username }}
-  </a>
-  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-    <a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a>
-    <a class="dropdown-item" href="{{ route('dashboard-settings-account') }}">Settings</a>
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="{{ route('logout') }}"
-       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-       Logout
-    </a>
-  </div>
-</li>
+     <ul class="navbar-nav d-none d-lg-flex align-items-center">
+  
     </ul>
 
     <!-- Mobile Menu -->
@@ -149,11 +177,6 @@ data-aos="fade-down"
       <li class="nav-item">
         <a class="nav-link" href="#">
           Hi, {{ Auth::user()->name }}
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link d-inline-block" href="">>
-          Cart
         </a>
       </li>
     </ul>
@@ -164,5 +187,6 @@ data-aos="fade-down"
 
 <!-- Logout Form -->
 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+   <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
   @csrf
 </form>

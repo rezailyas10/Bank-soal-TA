@@ -24,9 +24,9 @@ class HomeController extends Controller
         if ($role === 'ADMIN') {
             // Render view dashboard admin langsung
             return view('pages.admin.dashboard');
-        } elseif ($role === 'MITRA') {
-            // Render view dashboard mitra langsung
-            return view('pages.mitra.dashboard');
+        } elseif ($role === 'KONTRIBUTOR') {
+            // Render view dashboard kontributor langsung
+            return view('pages.kontributor.dashboard');
         } elseif ($role === 'USER') {
             // Render homepage user
             return view('pages.home');

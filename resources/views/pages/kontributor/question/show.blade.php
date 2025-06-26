@@ -1,5 +1,5 @@
 @php
-    $layout = auth()->user()->roles == 'ADMIN' ? 'layouts.admin' : 'layouts.mitra';
+    $layout = auth()->user()->roles == 'ADMIN' ? 'layouts.admin' : 'layouts.kontributor';
 @endphp
 
 @extends($layout)
@@ -97,12 +97,12 @@
                         @if($question->multipleChoice)
                             <div class="mb-3">
                                 @if($question->multipleChoice->option1)
-                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === 'A' ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
-                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === 'A' ? 'checked' : '' }}>
+                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option1 ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
+                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option1 ? 'checked' : '' }}>
                                         <label class="form-check-label w-100">
                                             <strong>A.</strong> 
                                             <div class="content-container">{!! $question->multipleChoice->option1 !!}</div>
-                                            @if($question->multipleChoice->correct_answer === 'A')
+                                            @if($question->multipleChoice->correct_answer === $question->multipleChoice->option1)
                                                 <i class="fas fa-check text-success ms-2"></i>
                                             @endif
                                         </label>
@@ -110,12 +110,12 @@
                                 @endif
                                 
                                 @if($question->multipleChoice->option2)
-                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === 'B' ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
-                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === 'B' ? 'checked' : '' }}>
+                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option2 ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
+                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option2 ? 'checked' : '' }}>
                                         <label class="form-check-label w-100">
                                             <strong>B.</strong> 
                                             <div class="content-container">{!! $question->multipleChoice->option2 !!}</div>
-                                            @if($question->multipleChoice->correct_answer === 'B')
+                                            @if($question->multipleChoice->correct_answer === $question->multipleChoice->option2)
                                                 <i class="fas fa-check text-success ms-2"></i>
                                             @endif
                                         </label>
@@ -123,12 +123,12 @@
                                 @endif
                                 
                                 @if($question->multipleChoice->option3)
-                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === 'C' ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
-                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === 'C' ? 'checked' : '' }}>
+                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option3 ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
+                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option3 ? 'checked' : '' }}>
                                         <label class="form-check-label w-100">
                                             <strong>C.</strong> 
                                             <div class="content-container">{!! $question->multipleChoice->option3 !!}</div>
-                                            @if($question->multipleChoice->correct_answer === 'C')
+                                            @if($question->multipleChoice->correct_answer === $question->multipleChoice->option3)
                                                 <i class="fas fa-check text-success ms-2"></i>
                                             @endif
                                         </label>
@@ -136,12 +136,12 @@
                                 @endif
                                 
                                 @if($question->multipleChoice->option4)
-                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === 'D' ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
-                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === 'D' ? 'checked' : '' }}>
+                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option4 ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
+                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option4 ? 'checked' : '' }}>
                                         <label class="form-check-label w-100">
                                             <strong>D.</strong> 
                                             <div class="content-container">{!! $question->multipleChoice->option4 !!}</div>
-                                            @if($question->multipleChoice->correct_answer === 'D')
+                                            @if($question->multipleChoice->correct_answer === $question->multipleChoice->option4)
                                                 <i class="fas fa-check text-success ms-2"></i>
                                             @endif
                                         </label>
@@ -149,12 +149,12 @@
                                 @endif
                                 
                                 @if($question->multipleChoice->option5)
-                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === 'E' ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
-                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === 'E' ? 'checked' : '' }}>
+                                    <div class="form-check mb-2 {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option5 ? 'bg-success bg-opacity-10 border border-success rounded p-2' : '' }}">
+                                        <input class="form-check-input" type="radio" disabled {{ $question->multipleChoice->correct_answer === $question->multipleChoice->option5 ? 'checked' : '' }}>
                                         <label class="form-check-label w-100">
                                             <strong>E.</strong> 
                                             <div class="content-container">{!! $question->multipleChoice->option5 !!}</div>
-                                            @if($question->multipleChoice->correct_answer === 'E')
+                                            @if($question->multipleChoice->correct_answer === $question->multipleChoice->option5)
                                                 <i class="fas fa-check text-success ms-2"></i>
                                             @endif
                                         </label>
@@ -290,11 +290,11 @@
 
     <!-- Action Buttons -->
     <div class="d-flex justify-content-between align-items-center">
-        <a href="{{ route('exam.show', $question->exam->slug) }}" class="btn btn-secondary">
+        <a href="{{ route('tryout.show', $question->exam->slug) }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali ke Ujian
         </a>
         
-        @if(auth()->user()->roles == 'MITRA')
+        @if(auth()->user()->roles == 'KONTRIBUTOR')
     <div class="btn-group">
         <a href="{{ route('question.edit', $question->id) }}" class="btn btn-outline-warning">
             <i class="fas fa-edit"></i> Edit Soal

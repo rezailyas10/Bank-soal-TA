@@ -1,4 +1,4 @@
-@extends('layouts.mitra')
+@extends('layouts.admin')
 
 @section('title')
   Update Bank Soal
@@ -34,24 +34,6 @@
                 <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $exam->title) }}" required>
             </div>
 
-            <div class="form-group">
-                <label for="description">Deskripsi</label>
-                <textarea name="description" id="description" rows="3" class="form-control" >{{ old('description', $exam->description) }}</textarea>
-            </div>
-            
-             <input type="hidden" name="exam_type" id="exam_type" value="tryout">
-
-            <div class="form-group" id="practice-section">
-                <label for="sub_category_id">Mata Pelajaran</label>
-                <select name="sub_category_id" id="sub_category_id" class="form-control">
-                    <option value="">-- Pilih Sub Category --</option>
-                    @foreach($sub_categories as $subCategory)
-                        <option value="{{ $subCategory->id }}" {{ old('sub_category_id', $exam->sub_category_id) == $subCategory->id ? 'selected' : '' }}>
-                            {{ $subCategory->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
 
 
                 {{-- tanggal dibuka/ditutup masuk exam --}}

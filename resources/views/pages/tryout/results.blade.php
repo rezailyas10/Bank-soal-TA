@@ -112,6 +112,9 @@
         .score-fill.good {
             background-color: #ffc107;
         }
+        .score-fill.average {
+    background-color: #fd7e14; /* Atau warna lain yang kamu mau */
+}
         
         .score-fill.poor {
             background-color: #dc3545;
@@ -425,7 +428,7 @@
                     Benar: {{ $sub->correct }} / {{ $sub->total }} | Salah: {{ $sub->total - $sub->correct }}
                 </small>
                 <div class="score-bar my-2">
-                    <div class="score-fill {{ $fillClass }}" style="width: {{ $sub->percentage }}%"></div>
+                 <div class="score-fill {{ $fillClass }}" style="width: {{ max(1, $sub->percentage) }}%"></div>
                 </div>
                 <a href="{{ route('tryout.review', [
                         'exam'        => $result->exam_id,

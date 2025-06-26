@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ExamRequest;
 use App\Models\Exam;
-use App\Models\SubCategory;
-use App\Models\TryoutSubtest;
 use App\Models\User;
+use App\Models\Question;
+use App\Models\SubCategory;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\TryoutSubtest;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Requests\Admin\ProductRequest;
+use App\Http\Requests\Admin\ExamRequest;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Str;
+use App\Http\Requests\Admin\ProductRequest;
 
 class ExamController extends Controller
 {
@@ -28,9 +29,9 @@ class ExamController extends Controller
     if ($user->roles === 'ADMIN') {
          $exams = Exam::where('exam_type','latihan soal')->latest()->paginate(24);
         $view = 'pages.admin.exam.index';
-    } elseif ($user->roles === 'MITRA') {
-        $exams = Exam::where('exam_type','latihan soal')->where('created_by', Auth::user()->name)->latest()->paginate(24);
-        $view = 'pages.mitra.exam.index';
+    } elseif ($user->roles === 'KONTRIBUTOR') {
+        $exams = Exam::where('exam_type','latihan soal')->latest()->paginate(24);
+        $view = 'pages.kontributor.exam.index';
     }
         
         return view($view,[
@@ -50,8 +51,8 @@ class ExamController extends Controller
         $subcategories = SubCategory::all();
          if ($user->roles === 'ADMIN') {
         $view = 'pages.admin.exam.create';
-        } elseif ($user->roles === 'MITRA') {
-            $view = 'pages.mitra.exam.create';
+        } elseif ($user->roles === 'KONTRIBUTOR') {
+            $view = 'pages.kontributor.exam.create';
         }
         return view($view, [
             'users'          => $users,
@@ -110,7 +111,14 @@ class ExamController extends Controller
     public function show(string $id)
     {
         $user = Auth::user();
-        if ($user->roles === 'ADMIN') {
+        $search = request()->input('search');
+
+    $exam = Exam::with('subCategory')->where('slug', $id)->firstOrFail();
+
+    // Base query questions
+    $questionsQuery = Question::where('exam_id', $exam->id);
+        
+    if ($user->roles === 'ADMIN') {
         $exam = Exam::with([
         'questions' => function($query) {
             $query->orderBy('created_at', 'desc');
@@ -120,21 +128,33 @@ class ExamController extends Controller
         'subCategory'
     ])->where('slug', $id)->firstOrFail();
         $view = 'pages.admin.exam.show';
-    } elseif ($user->roles === 'MITRA') {
+    } elseif ($user->roles === 'KONTRIBUTOR') {
     $exam = Exam::with([
         'questions' => function($query) {
             $query->where('user_id', auth()->id())
-                  ->orderBy('created_at', 'desc');
+                  ->orderBy('created_at', 'desc')->paginate(10);
         },
         'questions.subCategory',
         'questions.user',
         'subCategory'
     ])->where('slug', $id)->firstOrFail();
     
-    $view = 'pages.mitra.exam.show';
+    $view = 'pages.kontributor.exam.show';
 }
+
+ // Filter pencarian
+    if ($search) {
+        $questionsQuery->where('question_text', 'like', '%' . $search . '%');
+    }
+
+    // Urutkan dan load relasi tambahan
+    $questions = $questionsQuery->with(['subCategory', 'user'])->orderBy('created_at', 'desc')->get();
+
+    // Tempelkan hasil pertanyaan ke relasi exam
+    $exam->setRelation('questions', $questions);
         return view($view, compact('exam'));
     }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -147,8 +167,8 @@ class ExamController extends Controller
         $user = Auth::user();
  if ($user->roles === 'ADMIN') {
         $view = 'pages.admin.exam.edit';
-        } elseif ($user->roles === 'MITRA') {
-            $view = 'pages.mitra.exam.edit';
+        } elseif ($user->roles === 'KONTRIBUTOR') {
+            $view = 'pages.kontributor.exam.edit';
         }
 
        return view($view, [

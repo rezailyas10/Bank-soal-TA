@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ProductController;
-use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 Route::get('/categories', [App\Http\Controllers\CategoryController::class, 'index'])->name('categories');
 Route::get('/banksoal', [App\Http\Controllers\BanksoalController::class, 'index'])->name('bank-soal');
 Route::get('/banksoal/{id}', [App\Http\Controllers\BanksoalController::class, 'detail'])->name('bank-soal-detail');
@@ -96,8 +98,8 @@ Route::get('/get-tryout-detail/{slug}', [App\Http\Controllers\TryoutController::
 
 });
 //
-Route::prefix('mitra')->group(function () {
-     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'mitra'])-> name('mitra-dashboard');
+Route::prefix('kontributor')->group(function () {
+     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'kontributor'])-> name('kontributor-dashboard');
     // Resource routes
    
 

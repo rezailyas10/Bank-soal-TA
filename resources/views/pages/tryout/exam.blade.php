@@ -10,6 +10,9 @@
 }
 </style>
 @section('content')
+ <div class="header" data-aos="fade-down" data-aos-duration="800">
+        <h2>{{ $subtest->name }}</h2>
+    </div>
 <div class="container mt-4">
 
   <!-- TIMER DISPLAY -->
@@ -84,12 +87,15 @@
                       $questionText = $question->question_text;
 
                       if ($question->question_type === 'pilihan_majemuk') {
-                          $plain = strip_tags($questionText); // Buang HTML biar aman
-                          $words = preg_split('/\s+/', trim($plain));
+                          $plainText = strip_tags($question->question_text);
+                          $words = preg_split('/\s+/', trim($plainText));
                           $countWords = count($words);
-                          $truncated = $countWords > 3 ? implode(' ', array_slice($words, 0, $countWords - 3)) : '';
-                          $questionText = $truncated;
-                      }
+
+                          // Buat teks pertanyaan tanpa 1 kata terakhir
+                          $questionText = $countWords > 2 
+                              ? implode(' ', array_slice($words, 0, $countWords - 2))
+                              : '';
+                                                }
                     @endphp
 
             <p>{!! $questionText !!}</p>
@@ -131,21 +137,8 @@
                   @php
             // Ambil teks question_text, hapus tag HTML supaya mudah ambil kata
             $plainText = strip_tags($question->question_text);
-            $words = preg_split('/\s+/', trim($plainText));
-            $countWords = count($words);
-
-            // Ambil YES: dua kata terakhir
-            $noWord = $countWords >= 2 
-                ? $words[$countWords - 2] . ' ' . $words[$countWords - 1] 
-                : ($countWords == 1 ? $words[0] : 'No');
-
-            // Ambil NO: satu kata terakhir
-            $yesWord = $countWords >= 1 ? $words[$countWords - 1] : 'Yes';
-
-            // Buat teks pertanyaan baru tanpa 3 kata terakhir
-            $questionTextWithoutLast3 = $countWords > 3 
-                ? implode(' ', array_slice($words, 0, $countWords - 3))
-                : ''; // kalau kurang dari 4 kata, kosongkan saja
+              $words = preg_split('/\s+/', trim($plainText));
+              $lastWord = end($words);
         @endphp
                   @php
                     $opts = [
@@ -162,8 +155,8 @@
                       <thead>
                         <tr>
                           <th>Pernyataan</th>
-                         <th class="text-center">{{ $yesWord }}</th>
-                            <th class="text-center">{{ $noWord }}</th>
+                       <th class="text-center">{{ $lastWord }}</th>
+                            <th class="text-center"> Tidak {{ $lastWord }}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -192,7 +185,7 @@
                 <div class="essay-answer mt-5">
                   <h6>Jawaban Isian</h6>
                   <input type="text"
-                         class="form-control"
+                         class="form-control w-50"
                          name="answer[{{ $question->id }}]"
                          placeholder="Tulis jawaban…">
                 </div>

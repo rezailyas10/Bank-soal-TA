@@ -1,4 +1,4 @@
-@extends('layouts.mitra')
+@extends('layouts.kontributor')
 
 @section('title')
   Buat Bank Soal Baru

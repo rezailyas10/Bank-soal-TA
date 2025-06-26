@@ -47,7 +47,7 @@ class TryoutScoreController extends Controller
         ]);
 
         // Kelompokkan pertanyaan berdasarkan mata pelajaran (subCategory)
-        $questionsBySubCategory = $exam->questions->groupBy('subCategory.name')->map(function ($questions, $subCategoryName) use ($exam) {
+        $questionsBySubCategory = $exam->questions->where('status', 'Diterima')->groupBy('subCategory.name')->map(function ($questions, $subCategoryName) use ($exam) {
             return $questions->map(function ($question) use ($exam) {
                 
                 // Hitung statistik dasar untuk setiap pertanyaan
@@ -538,6 +538,7 @@ class TryoutScoreController extends Controller
     {
         $users = [];  // Data peserta dan jawaban mereka
         $items = [];  // ID soal dalam format IRT
+        
 
         // Buat array item dari question IDs
         foreach ($questions as $question) {

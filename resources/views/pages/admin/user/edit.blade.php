@@ -65,7 +65,7 @@ data-aos="fade-up"
                                 <select name="roles" class="form-control"  required>
                                     <option value="{{ $item->roles }}">Tidak diganti</option>
                                     <option value="ADMIN">Admin</option>
-                                    <option value="MITRA">MITRA</option>
+                                    <option value="KONTRIBUTOR">KONTRIBUTOR</option>
                                     <option value="USER">User</option>
                                 </select>
                             </div>

@@ -34,7 +34,7 @@
                  Belajar Lebih Mudah,  <br />
                   Mulai dari Login
                 </h2>
-                <form method="POST" action="{{ route('login') }}" class="mt-3">
+                <form method="POST" action="{{ route('login', ['redirect_to' => url()->current()]) }}" class="mt-3">
                   @csrf
                   <div class="form-group">
                     <label>Email address</label>
@@ -79,7 +79,7 @@
                 <div class="card-header">{{ __('Login') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('login', ['redirect_to' => url()->current()]) }}">
                         @csrf
 
                         <div class="row mb-3">

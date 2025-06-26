@@ -15,7 +15,7 @@
         </div>
         <div class="card-body">
           <div class="numbers-container d-flex flex-wrap justify-content-center">
-         @foreach($exam->questions as $q)
+         @foreach($exam->questions->where('status', 'Diterima') as $q)
           @php
               $detail = $resultDetails->firstWhere('question_id', $q->id) ?? null;
 
@@ -72,11 +72,28 @@
           <!-- Pertanyaan -->
           <div class="question-box mb-4">
             <h6 class="fw-bold">Pertanyaan:</h6>
-            <p>{!! $fixedquestiontext !!}</p>
-            
-            @if($question->photo)
-              <img src="{{ asset('storage/' . $question->photo) }}" alt="Question Image" class="img-fluid mb-3">
+            @php
+                      $questionText = $question->question_text;
+
+                      if ($question->question_type === 'pilihan_majemuk') {
+                          $plainText = strip_tags($question->question_text);
+                          $words = preg_split('/\s+/', trim($plainText));
+                          $countWords = count($words);
+
+                          // Buat teks pertanyaan tanpa 1 kata terakhir
+                          $questionTextWithoutLast3 = $countWords > 2 
+                              ? implode(' ', array_slice($words, 0, $countWords - 2))
+                              : '';
+                                                }
+                    @endphp
+           
+            @if ($question->question_type === 'pilihan_majemuk')
+               <p>{{ $questionTextWithoutLast3 }}</p>
+            @else
+             <p>{!! $fixedquestiontext !!}</p>
+
             @endif
+            
           </div>
 
           <!-- Jawaban User dan Jawaban Benar -->
@@ -172,15 +189,29 @@ $fixedOptionText = preg_replace_callback(
                           </tr>
                         </thead>
                         <tbody>
+                           @php
+                        $plainText = strip_tags($question->question_text);
+              $words = preg_split('/\s+/', trim($plainText));
+              $lastWord = end($words);
+                @endphp
                           @foreach($userAnswersProcessed as $answer)
+                            @php
+                                $userAnswer = strtolower(trim($answer['user_answer']));
+                            @endphp
                             <tr>
-                              <td>{{ $answer['statement'] }}</td>
-                              <td class="{{ $answer['is_correct'] ? 'text-success' : 'text-danger' }}">
-                                {{ $answer['user_answer'] }}
-                                <i class="bi {{ $answer['is_correct'] ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
-                              </td>
+                                <td>{{ $answer['statement'] }}</td>
+                                <td class="{{ $answer['is_correct'] ? 'text-success' : 'text-danger' }}">
+                                    @if($userAnswer === 'yes')
+                                        {{ $lastWord }}
+                                    @elseif($userAnswer === 'no')
+                                        Tidak {{ $lastWord }}
+                                    @else
+                                        {{ $answer['user_answer'] }}
+                                    @endif
+                                    <i class="bi {{ $answer['is_correct'] ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
+                                </td>
                             </tr>
-                          @endforeach
+                        @endforeach
                         </tbody>
                       </table>
                     @else
@@ -261,16 +292,25 @@ $fixedOptionText = preg_replace_callback(
                         <tbody>
                           @for($i = 1; $i <= 5; $i++)
                             @php
-                              $statement = $option->{'multiple' . $i};
-                              $correct = $option->{'yes/no' . $i};
+                                $statement = $option->{'multiple' . $i};
+                                $correct = strtolower($option->{'yes/no' . $i} ?? 'no');
                             @endphp
-                
+
                             @if(!empty($statement))
-                              <tr>
-                                <td>{{ $statement }}</td>
-                                <td>{{ ucfirst($correct ?? 'no') }}</td>
-                              </tr>
+                                <tr>
+                                    <td>{{ $statement }}</td>
+                                    <td>
+                                        @if($correct === 'yes')
+                                            {{ $lastWord }}
+                                        @elseif($correct === 'no')
+                                            Tidak {{ $lastWord }}
+                                        @else
+                                            {{ ucfirst($correct) }}
+                                        @endif
+                                    </td>
+                                </tr>
                             @endif
+
                           @endfor
                         </tbody>
                       </table>

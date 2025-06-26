@@ -1,4 +1,8 @@
-@extends('layouts.mitra')
+@php
+    $layout = auth()->user()->roles == 'ADMIN' ? 'layouts.admin' : 'layouts.kontributor';
+@endphp
+
+@extends($layout)
 
 @section('title')
     Buat Pertanyaan
@@ -114,7 +118,7 @@
     <h4>Pilihan Majemuk</h4>
     <!-- Opsi A -->
     <div class="form-group">
-        <label for="multiple1">Opsi A</label>
+        <label for="multiple1">Pernyataan 1</label>
         <input type="text" name="multiple1" id="multiple1" class="form-control" value="{{ old('multiple1') }}">
         <div class="form-check">
             <input type="radio" name="yes/no1" id="yes_no1_yes" value="yes" class="form-check-input" {{ old('yes/no1')=='yes' ? 'checked' : '' }}>
@@ -127,7 +131,7 @@
     </div>
     <!-- Opsi B -->
     <div class="form-group">
-        <label for="multiple2">Opsi B</label>
+        <label for="multiple2">Pernyataan 2</label>
         <input type="text" name="multiple2" id="multiple2" class="form-control" value="{{ old('multiple2') }}">
         <div class="form-check">
             <input type="radio" name="yes/no2" id="yes_no2_yes" value="yes" class="form-check-input" {{ old('yes/no2')=='yes' ? 'checked' : '' }}>
@@ -140,7 +144,7 @@
     </div>
     <!-- Opsi C -->
     <div class="form-group">
-        <label for="multiple3">Opsi C</label>
+        <label for="multiple3">Pernyataan 3</label>
         <input type="text" name="multiple3" id="multiple3" class="form-control" value="{{ old('multiple3') }}">
         <div class="form-check">
             <input type="radio" name="yes/no3" id="yes_no3_yes" value="yes" class="form-check-input" {{ old('yes/no3')=='yes' ? 'checked' : '' }}>
@@ -153,7 +157,7 @@
     </div>
     <!-- Opsi D -->
     <div class="form-group">
-        <label for="multiple4">Opsi D</label>
+        <label for="multiple4">Pernyataan 4</label>
         <input type="text" name="multiple4" id="multiple4" class="form-control" value="{{ old('multiple4') }}">
         <div class="form-check">
             <input type="radio" name="yes/no4" id="yes_no4_yes" value="yes" class="form-check-input" {{ old('yes/no4')=='yes' ? 'checked' : '' }}>
@@ -166,7 +170,7 @@
     </div>
     <!-- Opsi E -->
     <div class="form-group">
-        <label for="multiple5">Opsi E</label>
+        <label for="multiple5">Pernyataan 5</label>
         <input type="text" name="multiple5" id="multiple5" class="form-control" value="{{ old('multiple5') }}">
         <div class="form-check">
             <input type="radio" name="yes/no5" id="yes_no5_yes" value="yes" class="form-check-input" {{ old('yes/no5')=='yes' ? 'checked' : '' }}>
@@ -195,7 +199,7 @@
         </div>
 
 
-        <div class="form-group">
+        {{-- <div class="form-group">
     <label for="difficulty">Tingkat Kesulitan</label>
     <select name="difficulty" id="difficulty" class="form-control" required>
         <option value="">-- Pilih Kesulitan --</option>
@@ -206,7 +210,19 @@
     @error('difficulty')
       <small class="text-danger">{{ $message }}</small>
     @enderror
-</div>
+</div> --}}
+
+@if (auth()->user()->roles === 'ADMIN')
+        {{-- Hanya tampilkan bila role user bukan admin --}}
+    <div class="form-group">
+        <label for="status">Status Review</label>
+        <select name="status" id="status" class="form-control" required>
+            <option value="Ditinjau">Ditinjau</option>
+            <option value="Diterima">Diterima</option>
+            <option value="Ditolak">Ditolak</option>
+        </select>
+    </div>
+   @endif
 
 
 

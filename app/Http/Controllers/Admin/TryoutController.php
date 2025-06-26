@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Exam;
 use App\Models\User;
+use App\Models\Question;
 use App\Models\SubCategory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -28,9 +29,9 @@ class TryoutController extends Controller
     if ($user->roles === 'ADMIN') {
          $exams = Exam::where('exam_type','tryout')->where('created_by', Auth::user()->name)->latest()->paginate(24);
         $view = 'pages.admin.tryout.index';
-    } elseif ($user->roles === 'MITRA') {
+    } elseif ($user->roles === 'KONTRIBUTOR') {
         $exams = Exam::where('exam_type','tryout')->latest()->paginate(24);
-        $view = 'pages.mitra.tryout.index';
+        $view = 'pages.kontributor.tryout.index';
     }
         
         return view($view,[
@@ -106,6 +107,12 @@ class TryoutController extends Controller
     public function show(string $id)
     {
         $user = Auth::user();
+         $search = request()->input('search');
+
+    $exam = Exam::with('subCategory')->where('slug', $id)->firstOrFail();
+
+    // Base query questions
+    $questionsQuery = Question::where('exam_id', $exam->id);
         if ($user->roles === 'ADMIN') {
         $exam = Exam::with([
         'questions' => function($query) {
@@ -116,7 +123,7 @@ class TryoutController extends Controller
         'subCategory'
     ])->where('slug', $id)->firstOrFail();
         $view = 'pages.admin.tryout.show';
-    } elseif ($user->roles === 'MITRA') {
+    } elseif ($user->roles === 'KONTRIBUTOR') {
     $exam = Exam::with([
         'questions' => function($query) {
             $query->where('user_id', auth()->id())
@@ -127,8 +134,18 @@ class TryoutController extends Controller
         'subCategory'
     ])->where('slug', $id)->firstOrFail();
     
-    $view = 'pages.mitra.tryout.show';
+    $view = 'pages.kontributor.tryout.show';
 }
+// Filter pencarian
+    if ($search) {
+        $questionsQuery->where('question_text', 'like', '%' . $search . '%');
+    }
+
+    // Urutkan dan load relasi tambahan
+    $questions = $questionsQuery->with(['subCategory', 'user'])->orderBy('created_at', 'desc')->get();
+
+    // Tempelkan hasil pertanyaan ke relasi exam
+    $exam->setRelation('questions', $questions);
         return view($view, compact('exam'));
     }
 

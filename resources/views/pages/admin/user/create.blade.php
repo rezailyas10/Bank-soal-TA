@@ -62,7 +62,7 @@ data-aos="fade-up"
                                 <label for="">Roles</label>
                                 <select name="roles" class="form-control"  required>
                                     <option value="ADMIN">Admin</option>
-                                    <option value="MITRA">Mitra</option>
+                                    <option value="KONTRIBUTOR">Kontributor</option>
                                     <option value="USER">User</option>
                                 </select>
                             </div>

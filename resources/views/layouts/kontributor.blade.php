@@ -16,7 +16,20 @@
     <link href="https://cdn.datatables.net/v/bs5/dt-2.0.5/datatables.min.css" rel="stylesheet">
     @stack('addon-style')
   </head>
-
+<style>
+  .creator-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+}
+</style>
   <body>
     <div class="page-dashboard">
       <div class="d-flex" id="wrapper" data-aos="fade-right">
@@ -27,8 +40,8 @@
           </div>
           <div class="list-group list-group-flush">
             <a
-              href="{{ route('mitra-dashboard') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('mitra*')) ? 'active' : '' }} "
+              href="{{ route('kontributor-dashboard') }}"
+              class="list-group-item list-group-item-action {{ (request()->is('kontributor*')) ? 'active' : '' }} "
               >Dashboard</a
             >
            <a
@@ -55,7 +68,9 @@
               href="{{ route('logout') }}"  onclick="event.preventDefault();
                                   document.getElementById('logout-form').submit();"
               class="list-group-item list-group-item-action"
-              >Sign Out</a
+              >
+               <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
+              Sign Out</a
             >
             
           </div>
@@ -99,12 +114,15 @@
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    <img
-                      src="/images/icon-user.png"
-                      alt=""
-                      class="rounded-circle mr-2 profile-picture"
-                    />
-                    Hi, {{ Auth::user()->name }}
+                   <div style="display: flex; align-items: center; gap: 8px;">
+    <div class="creator-avatar">
+        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+    </div>
+    <div>
+        Hi, {{ Auth::user()->name }}
+    </div>
+</div>
+
                   </a>
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="{{ route('home') }}"
@@ -144,6 +162,7 @@
 
           <!-- Logout Form -->
 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+   <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
   @csrf
 </form>
 

@@ -29,7 +29,7 @@ class DashboardController extends Controller
     
     // Statistik dasar
     $total_users = User::count();
-    $total_mitra = User::where('roles', 'MITRA')->count();
+    $total_kontributor = User::where('roles', 'KONTRIBUTOR')->count();
     $total_questions = Question::count();
     $total_results = Result::count();
     
@@ -65,7 +65,7 @@ class DashboardController extends Controller
     
     return view('pages.admin.dashboard', compact(
         'total_users',
-        'total_mitra',
+        'total_kontributor',
         'total_questions',
         'total_results',
         'total_latihan_soal',
@@ -78,17 +78,17 @@ class DashboardController extends Controller
     ));
      
     }
-   public function mitra()
+   public function kontributor()
 {
     $user = Auth::user();
 
-    if ($user->roles !== 'MITRA') {
+    if ($user->roles !== 'KONTRIBUTOR') {
         return redirect()->back();
     }
 
     $user_id = Auth::id();
     
-    // Hitung statistik pertanyaan berdasarkan user yang login (mitra)
+    // Hitung statistik pertanyaan berdasarkan user yang login (kontributor)
     $total_questions = Question::where('user_id', $user_id)->count();
     $accepted_questions = Question::where('user_id', $user_id)
         ->where('status', 'Diterima')
@@ -122,13 +122,13 @@ class DashboardController extends Controller
         })
         ->count();
     
-    // Ambil 5 pertanyaan terbaru dari mitra (semua status) - berdasarkan updated_at
+    // Ambil 5 pertanyaan terbaru dari kontributor (semua status) - berdasarkan updated_at
     $recent_questions = Question::where('user_id', $user_id)
         ->orderBy('updated_at', 'desc')
         ->limit(5)
         ->get();
     
-    // Ambil 5 pertanyaan terbaru yang sudah diterima dari mitra - berdasarkan updated_at
+    // Ambil 5 pertanyaan terbaru yang sudah diterima dari kontributor - berdasarkan updated_at
     $recent_accepted_questions = Question::where('user_id', $user_id)
         ->where('status', 'Diterima')
         ->with('exam') // Eager load exam untuk mendapatkan exam_type
@@ -136,7 +136,7 @@ class DashboardController extends Controller
         ->limit(5)
         ->get();
     
-    // Ambil 5 ujian terbaru dari mitra (opsional) - DISABLED
+    // Ambil 5 ujian terbaru dari kontributor (opsional) - DISABLED
     // $recent_exams = Exam::where('created_by', Auth::user()->name)
     //     ->orWhere('created_by', Auth::id())
     //     ->withCount('questions') // Menghitung jumlah pertanyaan per ujian
@@ -144,7 +144,7 @@ class DashboardController extends Controller
     //     ->limit(5)
     //     ->get();
     
-    return view('pages.mitra.dashboard', compact(
+    return view('pages.kontributor.dashboard', compact(
         'total_questions',
         'accepted_questions',
         'reviewed_questions',

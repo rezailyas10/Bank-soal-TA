@@ -4,7 +4,7 @@
   Latihan soal
 @endsection
 
-<link rel="stylesheet" href="{{ asset('/style/mitra-exam.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ asset('/style/kontributor-exam.css') }}?v={{ time() }}">
 
 @section('content')
 

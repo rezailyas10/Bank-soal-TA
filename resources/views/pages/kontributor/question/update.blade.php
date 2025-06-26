@@ -1,4 +1,8 @@
-@extends('layouts.mitra')
+@php
+    $layout = auth()->user()->roles == 'ADMIN' ? 'layouts.admin' : 'layouts.kontributor';
+@endphp
+
+@extends($layout)
 
 @section('title')
     Edit Pertanyaan
@@ -55,20 +59,6 @@ $questionTextFixed = old('question_text', isset($question->question_text) ? fixI
     <textarea name="question_text" id="question_text" class="form-control tiny-editor">{!! $questionTextFixed !!}</textarea>
 </div>
 
-        <div class="form-group">
-            <label for="photos">Foto (Opsional)</label>
-            @if($question->photo)
-                <div class="mb-2">
-                    <img src="{{ asset('storage/'.$question->photo) }}" alt="Foto Pertanyaan" width="200">
-                </div>
-                <div class="form-check">
-                    <!-- Checkbox untuk menghapus foto -->
-                    <input type="checkbox" name="remove_photo" id="remove_photo" class="form-check-input" value="true">
-                    <label class="form-check-label" for="remove_photo">Hapus Foto</label>
-                </div>
-            @endif
-            <input type="file" name="photo" id="photos" class="form-control">
-        </div>
 
         <div class="form-group">
             <label for="question_type">Tipe Soal</label>
@@ -192,7 +182,7 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             <h4>Pilihan Majemuk</h4>
             <!-- Opsi A -->
             <div class="form-group">
-                <label for="multiple1">Opsi A</label>
+                <label for="multiple1">Pernyataan 1</label>
                 <input type="text" name="multiple1" id="multiple1" class="form-control" value="{{ old('multiple1', $question->multipleOption->multiple1 ?? '') }}">
                 <div class="form-check">
                     <input type="radio" name="yes/no1" id="yes_no1_yes" value="yes" class="form-check-input" 
@@ -207,7 +197,7 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             </div>
             <!-- Opsi B -->
             <div class="form-group">
-                <label for="multiple2">Opsi B</label>
+                <label for="multiple2">Pernyataan 2</label>
                 <input type="text" name="multiple2" id="multiple2" class="form-control" value="{{ old('multiple2', $question->multipleOption->multiple2 ?? '') }}">
                 <div class="form-check">
                     <input type="radio" name="yes/no2" id="yes_no2_yes" value="yes" class="form-check-input" 
@@ -222,7 +212,7 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             </div>
             <!-- Opsi C -->
             <div class="form-group">
-                <label for="multiple3">Opsi C</label>
+                <label for="multiple3">Pernyataan 3</label>
                 <input type="text" name="multiple3" id="multiple3" class="form-control" value="{{ old('multiple3', $question->multipleOption->multiple3 ?? '') }}">
                 <div class="form-check">
                     <input type="radio" name="yes/no3" id="yes_no3_yes" value="yes" class="form-check-input" 
@@ -237,7 +227,7 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             </div>
             <!-- Opsi D -->
             <div class="form-group">
-                <label for="multiple4">Opsi D</label>
+                <label for="multiple4">Pernyataan 4</label>
                 <input type="text" name="multiple4" id="multiple4" class="form-control" value="{{ old('multiple4', $question->multipleOption->multiple4 ?? '') }}">
                 <div class="form-check">
                     <input type="radio" name="yes/no4" id="yes_no4_yes" value="yes" class="form-check-input" 
@@ -252,7 +242,7 @@ $correctAnswer = old('correct_answer', $question->multipleChoice->correct_answer
             </div>
             <!-- Opsi E -->
             <div class="form-group">
-                <label for="multiple5">Opsi E</label>
+                <label for="multiple5">Pernyataan 5</label>
                 <input type="text" name="multiple5" id="multiple5" class="form-control" value="{{ old('multiple5', $question->multipleOption->multiple5 ?? '') }}">
                 <div class="form-check">
                     <input type="radio" name="yes/no5" id="yes_no5_yes" value="yes" class="form-check-input" 
@@ -285,7 +275,7 @@ $explanationFixed = old('explanation', isset($question->explanation) ? fixImageU
     <textarea name="explanation" id="explanation" class="form-control tiny-editor">{!! $explanationFixed !!}</textarea>
 </div>
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="difficulty">Tingkat Kesulitan</label>
             <select name="difficulty" id="difficulty" class="form-control" required>
                 <option value="Mudah"  {{ old('difficulty', $question->difficulty)=='Mudah'  ? 'selected':'' }}>Mudah</option>
@@ -295,14 +285,15 @@ $explanationFixed = old('explanation', isset($question->explanation) ? fixImageU
             @error('difficulty')
             <small class="text-danger">{{ $message }}</small>
             @enderror
-        </div>
+        </div> --}}
 
        @php
     $user = Auth::user();
 @endphp
 
-    {{-- Hanya tampilkan bila role user bukan admin --}}
-    <div class="form-group d-none">
+   @if (auth()->user()->roles === 'ADMIN')
+        {{-- Hanya tampilkan bila role user bukan admin --}}
+    <div class="form-group">
         <label for="status">Status Review</label>
         <select name="status" id="status" class="form-control" required>
             <option value="Ditinjau"  {{ old('status', $question->status)=='Ditinjau'  ? 'selected':'' }}>Ditinjau</option>
@@ -310,13 +301,31 @@ $explanationFixed = old('explanation', isset($question->explanation) ? fixImageU
             <option value="Ditolak"   {{ old('status', $question->status)=='Ditolak'   ? 'selected':'' }}>Ditolak</option>
         </select>
     </div>
-    <div class="d-flex justify-content-between align-items-center">
+@else
+<div class="form-group d-none">
+        <label for="status">Status Review</label>
+        <select name="status" id="status" class="form-control" required>
+            <option value="Ditinjau"  {{ old('status', $question->status)=='Ditinjau'  ? 'selected':'' }}>Ditinjau</option>
+            <option value="Diterima"  {{ old('status', $question->status)=='Diterima'  ? 'selected':'' }}>Diterima</option>
+            <option value="Ditolak"   {{ old('status', $question->status)=='Ditolak'   ? 'selected':'' }}>Ditolak</option>
+        </select>
+    </div>
+   @endif
+  
+        @if ($question->exam->exam_type == 'latihan soal')
+            <div class="d-flex justify-content-between align-items-center">
         <a href="{{ route('exam.show', $question->exam->slug) }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali ke Ujian
         </a>
          <button type="submit" class="btn btn-success">Simpan Perubahan</button>
     </div>
-
+        @else
+             <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ route('tryout.show', $question->exam->slug) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Ujian
+        </a>
+         <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+        @endif
 
        
     </form>

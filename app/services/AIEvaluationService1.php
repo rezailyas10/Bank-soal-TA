@@ -166,53 +166,53 @@ private function buildDetailedEvaluationPrompt(array $wrongArr, array $correctAr
         }
     }
 
-    // 3. Format Analisa Per Materi (Lesson)
-    $materiSection = "🔍 **Analisa Per Materi (Lesson)**\n\n";
-    // Kekuatan per materi
-    $materiSection .= "Kekuatan\n";
-    $foundStrength = false;
-    foreach ($lessonStats as $subcat => $lessons) {
-        $lines = [];
-        foreach ($lessons as $lesson => $stat) {
-            $c = $stat['correct']; $w = $stat['wrong'];
-            if (($c + $w) > 0 && $c >= $w) {
-                $foundStrength = true;
-                $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
-            }
-        }
-        if ($lines) {
-            $materiSection .= "Mata Pelajaran: {$subcat}\n";
-            foreach ($lines as $l) {
-                $materiSection .= "{$l}\n";
-            }
+   // 3. Format Analisa Per Materi (Lesson)
+$materiSection = "🔍 **Analisa Per Materi (Lesson)**\n\n";
+// Kekuatan per materi
+$materiSection .= "Kekuatan\n";
+$foundStrength = false;
+foreach ($lessonStats as $subcat => $lessons) {
+    $lines = [];
+    foreach ($lessons as $lesson => $stat) {
+        $c = $stat['correct']; $w = $stat['wrong'];
+        if (($c + $w) > 0 && $c >= $w) {
+            $foundStrength = true;
+            $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
         }
     }
-    if (!$foundStrength) {
-        $materiSection .= "- Tidak ada materi dengan jumlah benar ≥ salah.\n";
+    if ($lines) {
+        $materiSection .= "Mata Pelajaran: {$subcat}\n";
+        foreach ($lines as $l) {
+            $materiSection .= "{$l}\n";
+        }
     }
+}
+if (!$foundStrength) {
+    $materiSection .= "- Tidak ada materi dengan jumlah benar ≥ salah.\n";
+}
 
-    // Kelemahan per materi
-    $materiSection .= "\nKelemahan\n";
-    $foundWeak = false;
-    foreach ($lessonStats as $subcat => $lessons) {
-        $lines = [];
-        foreach ($lessons as $lesson => $stat) {
-            $c = $stat['correct']; $w = $stat['wrong'];
-            if ($w > $c) {
-                $foundWeak = true;
-                $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
-            }
-        }
-        if ($lines) {
-            $materiSection .= "Mata Pelajaran: {$subcat}\n";
-            foreach ($lines as $l) {
-                $materiSection .= "{$l}\n";
-            }
+// Kelemahan per materi
+$materiSection .= "\nKelemahan\n";
+$foundWeak = false;
+foreach ($lessonStats as $subcat => $lessons) {
+    $lines = [];
+    foreach ($lessons as $lesson => $stat) {
+        $c = $stat['correct']; $w = $stat['wrong'];
+        if ($w > $c) {
+            $foundWeak = true;
+            $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
         }
     }
-    if (!$foundWeak) {
-        $materiSection .= "- Tidak ada materi dengan jumlah salah > benar.\n";
+    if ($lines) {
+        $materiSection .= "Mata Pelajaran: {$subcat}\n";
+        foreach ($lines as $l) {
+            $materiSection .= "{$l}\n";
+        }
     }
+}
+if (!$foundWeak) {
+    $materiSection .= "- Tidak ada materi dengan jumlah salah > benar.\n";
+}
 
     // 4. Format Analisa Per Mata Pelajaran berdasarkan average_score
     $subcatSection = "\n📊 **Analisa Per Mata Pelajaran**\n\n";
@@ -259,6 +259,7 @@ Kamu adalah tutor yang mengevaluasi kompetensi siswa berdasarkan latihan soal.
 {$subcatSection}
 
 Tulis ringkas, jelas, dan langsung ke poin minimal 600 kata (≤9500 kata).
+lalu simpulkan hasil dari evaluasi tersebut
 EOD;
 
     return $prompt;
@@ -427,26 +428,29 @@ EOD;
     private function callGroqAPI($prompt)
     {
         try {
-            // Log untuk debugging
-            Log::info('Calling Groq API with prompt length: ' . strlen($prompt));
-            
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->groqApiKey,
-                    'Content-Type' => 'application/json',
-                ])
-                ->post($this->groqUrl, [
-                    'model' => 'llama-3.1-8b-instant',
-                    'messages' => [
-                        [
-                            'role' => 'user',
-                            'content' => $prompt
-                        ]
-                    ],
-                    'temperature' => 0.7,
-                    'max_tokens' => 9999,
-                    'top_p' => 0.9
-                ]);
+        // Pastikan prompt valid UTF-8
+        $prompt = mb_convert_encoding($prompt, 'UTF-8', 'UTF-8');
+
+        // Log untuk debugging
+        Log::info('Calling Groq API with prompt length: ' . strlen($prompt));
+        
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $this->groqApiKey,
+                'Content-Type' => 'application/json',
+            ])
+            ->post($this->groqUrl, [
+                'model' => 'llama-3.1-8b-instant',
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $prompt
+                    ]
+                ],
+                'temperature' => 0.7,
+                'max_tokens' => 99999,
+                'top_p' => 0.9
+            ]);
 
             // Log response untuk debugging
             Log::info('Groq API Response Status: ' . $response->status());

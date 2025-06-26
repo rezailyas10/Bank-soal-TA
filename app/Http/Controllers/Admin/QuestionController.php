@@ -26,7 +26,7 @@ class questionController extends Controller
     {
         $exam_id = $request->get('exam_id');
         $subcategories = SubCategory::all();
-        return view('pages.mitra.question.create', [
+        return view('pages.kontributor.question.create', [
             'exam_id'       => $exam_id,
             'sub_categories'=> $subcategories,
         ]);
@@ -40,9 +40,14 @@ class questionController extends Controller
         $data = $request->all();
         $exam = Exam::findOrFail($request->exam_id);
         $data['exam_id'] = $exam->id;
-        $data['user_id']    = Auth::id();              // user yg login
-        $data['status']     = 'Ditinjau';              // default
-        $data['difficulty'] = $request->difficulty;
+        $data['user_id']    = Auth::id();   
+                   // user yg login
+        if (auth()->user()->roles === 'ADMIN') {
+            $data['status'] = $request->input('status'); // ambil dari form
+        } else {
+            $data['status'] = 'Ditinjau'; // default untuk non-admin
+        }            // default
+        // $data['difficulty'] = $request->difficulty;
         // Proses upload foto
     if ($request->hasFile('photo')) {
         $file = $request->file('photo');
@@ -127,7 +132,7 @@ if ($exam->exam_type === 'latihan soal') {
     return redirect()->route('tryout.show', $exam->slug)->with('success', 'Pertanyaan berhasil dibuat!');
 } else {
     // Default fallback jika tipe tidak dikenal
-    return redirect()->route('mitra-dashboard')->with('warning', 'Tipe ujian tidak dikenal, diarahkan ke dashboard.');
+    return redirect()->route('kontributor-dashboard')->with('warning', 'Tipe ujian tidak dikenal, diarahkan ke dashboard.');
 }
     }
 
@@ -142,7 +147,7 @@ if ($exam->exam_type === 'latihan soal') {
         $users = User::all();
         $subcategories = SubCategory::all();
 
-        return view('pages.mitra.question.show', [
+        return view('pages.kontributor.question.show', [
             'question' => $question,
             'exam'           => $exam,
             'users'          => $users,
@@ -162,11 +167,16 @@ if ($exam->exam_type === 'latihan soal') {
           $user = Auth::user();
           $exam = Exam::find($question->exam_id);
 
-         if ($user->roles === 'ADMIN') {
-        $view = 'pages.mitra.question.updateTryout';
-    } elseif ($user->roles === 'MITRA') {
-        $view = 'pages.mitra.question.update';
-    }
+       if ($question->user_id === $user->id) {
+    // Soal ini dibuat oleh user (baik admin maupun kontributor)
+            $view = 'pages.kontributor.question.update';
+        } elseif ($user->roles === 'ADMIN') {
+            // Admin melihat soal milik orang lain
+            $view = 'pages.kontributor.question.updateTryout';
+        } else {
+            // Kontributor mencoba akses soal orang lain -> tolak
+            abort(403, 'Kamu tidak memiliki akses ke soal ini.');
+        }
 
         return view($view, [
             'question' => $question,
@@ -182,7 +192,7 @@ if ($exam->exam_type === 'latihan soal') {
     public function update(Request $request, Exam $exam, Question $question)
 {
       $user = Auth::user();
-      if ($user->roles === 'ADMIN') {
+      if ($user->roles === 'ADMIN'  && $question->user_id != Auth::id()) {
         // Validasi input status
         $request->validate([
             'status' => 'required|in:Ditinjau,Diterima,Ditolak',
@@ -193,13 +203,14 @@ if ($exam->exam_type === 'latihan soal') {
 
         return redirect()->back()->with('success', 'Status pertanyaan berhasil diperbarui.');
     }
-    elseif ($user->roles === 'MITRA') {
+    elseif (($user->roles === 'KONTRIBUTOR' && $question->user_id === Auth::id()) ||
+($user->roles === 'ADMIN' && $question->user_id === Auth::id())) {
         $data = $request->all();
     $exam = Exam::findOrFail($request->exam_id);
     $data['exam_id'] = $exam->id;
     $data['user_id']    = Auth::id();              // user yg login
     $data['status']     = $request->status;             // default
-    $data['difficulty'] = $request->difficulty;
+    // $data['difficulty'] = $request->difficulty;
 
     // Jika ada file foto baru, update foto
     if ($request->hasFile('photo')) {

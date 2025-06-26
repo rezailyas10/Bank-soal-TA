@@ -45,8 +45,8 @@
                   </div>
                 </div>
                 <div class="flex-grow-1 ms-3">
-                  <h6 class="card-title mb-0 text-muted">Total Mitra</h6>
-                  <h4 class="mb-0 fw-bold text-success">{{ $total_mitra ?? 0 }}</h4>
+                  <h6 class="card-title mb-0 text-muted">Total Kontributor</h6>
+                  <h4 class="mb-0 fw-bold text-success">{{ $total_kontributor ?? 0 }}</h4>
                 </div>
               </div>
             </div>
@@ -327,7 +327,7 @@
                               {{ $user->name }}
                             </h6>
                             <span class="badge 
-                              @if($user->roles == 'MITRA') bg-primary
+                              @if($user->roles == 'KONTRIBUTOR') bg-primary
                               @elseif($user->roles == 'ADMIN') bg-danger
                               @else bg-secondary
                               @endif flex-shrink-0">

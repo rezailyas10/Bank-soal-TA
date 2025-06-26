@@ -3,8 +3,8 @@
         case 'ADMIN':
             $layout = 'layouts.admin';
             break;
-        case 'MITRA':
-            $layout = 'layouts.mitra';
+        case 'KONTRIBUTOR':
+            $layout = 'layouts.kontributor';
             break;
         case 'USER':
             $layout = 'layouts.dashboard';

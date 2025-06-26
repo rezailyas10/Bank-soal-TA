@@ -59,54 +59,80 @@ private function buildWrongQuestionsAnalysis($questions)
 /**
  * Prompt sederhana: fokus ke sub-bab pembahasan, ambil data dari array $wrong/$correct
  */
-    private function buildDetailedEvaluationPrompt(array $wrong, array $correct, int $score)
-    {
-        // 1) Kumpulkan lesson yang benar → sebagai kekuatan
-        $strengthLessons = [];
-        foreach ($correct as $q) {
-            // Kalau ada lebih dari satu soal benar di lesson sama, kita pakai deskripsi terakhir
-            $strengthLessons[$q['lesson']] = $q['description'];
-        }
+   private function buildDetailedEvaluationPrompt(array $wrong, array $correct, int $score)
+{
+    $lessonStats = [];
 
-        // 2) Kumpulkan lesson yang salah → sebagai kelemahan
-        $weakLessons = [];
-        foreach ($wrong as $q) {
-            $weakLessons[$q['lesson']] = $q['description'];
+    // 1) Hitung jumlah soal benar per lesson
+    foreach ($correct as $q) {
+        $lesson = $q['lesson'];
+        if (!isset($lessonStats[$lesson])) {
+            $lessonStats[$lesson] = ['correct' => 0, 'wrong' => 0, 'description' => $q['description']];
         }
+        $lessonStats[$lesson]['correct']++;
+    }
 
-        // 3) Format bagian “KEKUATAN SUBBAB PEMBAHASAN”
-        if (count($strengthLessons)) {
-            $str = "💪 **KEKUATAN SUBBAB PEMBAHASAN**\n";
-            foreach ($strengthLessons as $lesson => $desc) {
-                $str .= "- {$lesson}: {$desc}\n";
-            }
+    // 2) Hitung jumlah soal salah per lesson
+    foreach ($wrong as $q) {
+        $lesson = $q['lesson'];
+        if (!isset($lessonStats[$lesson])) {
+            $lessonStats[$lesson] = ['correct' => 0, 'wrong' => 0, 'description' => $q['description']];
+        }
+        $lessonStats[$lesson]['wrong']++;
+    }
+
+    // 3) Kelompokkan ke kekuatan atau kelemahan
+    $strengthLessons = [];
+    $weakLessons = [];
+
+    foreach ($lessonStats as $lesson => $data) {
+        $benar = $data['correct'];
+        $salah = $data['wrong'];
+        $desc = $data['description'];
+
+        if ($benar > $salah) {
+            $strengthLessons[$lesson] = ['count' => $benar, 'description' => $desc];
         } else {
-            $str = "💪 **KEKUATAN SUBBAB PEMBAHASAN**\n";
-            $str .= "- Tidak ada subbab yang berhasil dikuasai; semua perlu diperbaiki.\n";
+            $weakLessons[$lesson] = ['count' => $salah, 'description' => $desc];
         }
+    }
 
-        // 4) Format bagian “KELEMAHAN SUBBAB PEMBAHASAN”
-        $weakSection = "⚠️ **KELEMAHAN SUBBAB PEMBAHASAN**\n";
-        foreach ($weakLessons as $lesson => $desc) {
-            $weakSection .= "- {$lesson}: {$desc}\n";
+    // 4) Format KEKUATAN
+    $str = "💪 **KEKUATAN SUBBAB PEMBAHASAN**\n";
+    if (count($strengthLessons)) {
+        foreach ($strengthLessons as $lesson => $data) {
+            $str .= "- {$lesson} ({$data['count']} soal benar): {$data['description']}\n";
         }
-        if (count($weakLessons) === 0) {
-            $weakSection .= "- Tidak ada kelemahan; semua soal dikerjakan dengan benar.\n";
-        }
+    } else {
+        $str .= "- Tidak ada subbab yang berhasil dikuasai.\n";
+    }
 
-        // 5) Strategi belajar berdasarkan kelemahan
-        $strategy = "🎯 **STRATEGI PEMBELAJARAN**\n";
-        if (count($weakLessons)) {
-            foreach ($weakLessons as $lesson => $_) {
-                $strategy .= "- Latih soal pada subbab **{$lesson}** setiap hari.\n";
-                $strategy .= "- Tinjau ulang penjelasan konsep di subbab **{$lesson}** (video atau ringkasan).\n";
-            }
-        } else {
-            $strategy .= "- Pertahankan konsistensi belajar, karena tidak ada kelemahan teridentifikasi.\n";
+    // 5) Format KELEMAHAN
+    $weakSection = "⚠️ **KELEMAHAN SUBBAB PEMBAHASAN**\n";
+    if (count($weakLessons)) {
+        foreach ($weakLessons as $lesson => $data) {
+            $wrongCount = $data['count'];
+            $desc = $data['description'];
+            $wrongText = $wrongCount > 0 ? "({$wrongCount} soal salah)" : "(tidak dijawab)";
+            $weakSection .= "- {$lesson} {$wrongText}: {$desc}\n";
         }
+    } else {
+        $weakSection .= "- Tidak ada kelemahan; semua soal dikerjakan dengan benar.\n";
+    }
 
-        // 6) Gabungkan semua komponen ke dalam satu prompt final
-        return <<<EOD
+    // 6) Strategi Belajar
+    $strategy = "🎯 **STRATEGI PEMBELAJARAN**\n";
+    if (count($weakLessons)) {
+        foreach ($weakLessons as $lesson => $_) {
+            $strategy .= "- Latih soal pada subbab **{$lesson}** setiap hari.\n";
+            $strategy .= "- Tinjau ulang konsep di subbab **{$lesson}** (video atau ringkasan).\n";
+        }
+    } else {
+        $strategy .= "- Pertahankan konsistensi belajar.\n";
+    }
+
+    // 7) Gabung jadi satu
+    return <<<EOD
 Kamu adalah tutor yang mengevaluasi kompetensi siswa berdasarkan latihan soal.
 
 📊 Nilai: {$score}/100
@@ -117,11 +143,11 @@ Kamu adalah tutor yang mengevaluasi kompetensi siswa berdasarkan latihan soal.
 
 {$strategy}
 
-Tulis ringkas, jelas, dan langsung ke poin (1500 kata).
-DIBAGIAN KEKUATAN DAN KELEMAHAN TAMBHKAN DESKRIPSI SEDIKIT
-GUNAKAN KATA ANDA BUKAN MEREKA
+Tulis ringkas, jelas, dan langsung ke poin (maks 1500 kata).
+Gunakan kata Anda, bukan mereka.
 EOD;
-    }
+}
+
 //  /**
 //      * Prompt rekomendasi kampus
 //      */

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
-class IsMITRA
+class IsKONTRIBUTOR
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class IsMITRA
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::user() && Auth::user()->roles == 'MITRA') {
+        if(Auth::user() && Auth::user()->roles == 'KONTRIBUTOR') {
             return $next($request);
         }
         return redirect('/');

@@ -131,7 +131,7 @@ class BanksoalController extends Controller
 {
     $subCategories = SubCategory::with([
     'exam' => function($query) {
-        $query->where('exam_type', 'latihan soal');
+        $query->where('exam_type', 'latihan soal')->where('is_published', true);
     }
 ])->where('slug', $id)->firstOrFail();
 
@@ -173,11 +173,19 @@ $exams = $subCategories->exam;
             ->where('result_id', $resultId)
             ->get();
 
-               $details = ResultDetails::with('question.subCategory')
-        ->where('result_id', $resultId)->get();
+            $details = ResultDetails::with('question.subCategory')
+            ->where('result_id', $resultId)
+            ->whereHas('question', function ($query) {
+                $query->where('status', 'Diterima');
+            })
+            ->get();
+
 
         // Hitung statistik dasar
         $correctCount = $resultDetails->where('correct', true)->count();
+//         $totalQuestions = $resultDetails->filter(function ($detail) {
+//     return $detail->question && $detail->question->status === 'Diterima';
+// })->count();
         $totalQuestions = $resultDetails->count();
         
         // Dapatkan soal yang salah untuk evaluasi AI
@@ -234,7 +242,7 @@ $exams = $subCategories->exam;
 }
 
         // Ambil semua record evaluasi untuk riwayat (urut terbaru pertama)
-        $allEvaluations = $result->aiEvaluation()->orderByDesc('created_at')->get();
+        $allEvaluations = $result->aiEvaluation()->orderByDesc('created_at')->paginate(5);
 
 // // Siapkan performance per subCategory
 //     $subjectStats = [];
@@ -310,7 +318,7 @@ $exams = $subCategories->exam;
     public function review($examId, $questionId)
     {
         $exam = Exam::with('questions')->findOrFail($examId);
-        $question = Question::with(['multipleChoice', 'multipleOption', 'essay'])->findOrFail($questionId);
+        $question = Question::with(['multipleChoice', 'multipleOption', 'essay'])->where('status','Diterima')->findOrFail($questionId);
     
         // ambil jawaban user dari result_detail
         $userResultDetail = ResultDetails::with('result')

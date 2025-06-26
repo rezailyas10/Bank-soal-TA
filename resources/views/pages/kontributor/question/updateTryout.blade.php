@@ -84,7 +84,7 @@ $questionTextFixed = old('question_text', isset($question->question_text) ? fixI
             </select>
         </div>
 
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="difficulty">Tingkat Kesulitan</label>
             <select name="difficulty" id="difficulty" class="form-control" disabled required>
                 <option value="Mudah"  {{ old('difficulty', $question->difficulty)=='Mudah'  ? 'selected':'' }}>Mudah</option>
@@ -94,7 +94,7 @@ $questionTextFixed = old('question_text', isset($question->question_text) ? fixI
             @error('difficulty')
             <small class="text-danger">{{ $message }}</small>
             @enderror
-        </div>
+        </div> --}}
 @if(Auth::user()->roles === 'ADMIN')
         {{-- ADMIN hanya ubah status --}}
         <div class="form-group">

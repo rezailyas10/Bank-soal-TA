@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('regencies_id')->nullable();
             $table->string('country')->nullable();
             $table->string('phone_number')->nullable();
-            $table->enum('roles',['USER', 'ADMIN', 'MITRA'])->default('USER'); 
+            $table->enum('roles',['USER', 'ADMIN', 'KONTRIBUTOR'])->default('USER'); 
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();

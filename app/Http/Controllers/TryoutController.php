@@ -186,7 +186,7 @@ $subCategoryStats = DB::table('result_details')
     $exam = Exam::where('slug', $slug)->firstOrFail();
 
     $questions = Question::with('subCategory.category')
-    ->where('exam_id', $exam->id)
+    ->where('exam_id', $exam->id)->where('status','Diterima')
     ->get();
 
     $userExamResult = auth()->user()->results()
@@ -312,7 +312,10 @@ foreach ($userMajors as $userMajor) {
 $universityRankings = array_values($universityRankings);
     // Rekap berdasarkan subkategori
  $perSubcategory = DB::table('result_details')
-    ->join('questions', 'result_details.question_id', '=', 'questions.id')
+     ->join('questions', function ($join) {
+        $join->on('result_details.question_id', '=', 'questions.id')
+             ->where('questions.status', '=', 'Diterima'); // Tambahan filter status
+    })
     ->join('sub_categories', 'questions.sub_category_id', '=', 'sub_categories.id')
     ->select([
         'questions.sub_category_id AS id',
@@ -348,7 +351,7 @@ $universityRankings = array_values($universityRankings);
  public function review($examId, $subCategoryId, $questionId)
     {
         $exam = Exam::with('questions')->findOrFail($examId);
-        $question = Question::with(['multipleChoice', 'multipleOption', 'essay'])->where('sub_category_id', $subCategoryId)->findOrFail($questionId);
+        $question = Question::with(['multipleChoice', 'multipleOption', 'essay'])->where('sub_category_id', $subCategoryId)->where('status','Diterima')->findOrFail($questionId);
     
         // ambil jawaban user dari result_detail
         $userResultDetail = ResultDetails::with('result')
