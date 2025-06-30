@@ -20,20 +20,7 @@
             @csrf
             <div class="card">
               <div class="card-body">
-                <!-- Update Profile Photo -->
-                <div class="row mb-3">
-                  <div class="col-12">
-                    <div class="form-group">
-                      <label for="profile_photo">Update Profile Photo</label>
-                      <input
-                        type="file"
-                        class="form-control"
-                        id="profile_photo"
-                        name="profile_photo"
-                      />
-                    </div>
-                  </div>
-                </div>
+              
                 <!-- Your Name & Email -->
                 <div class="row mb-2">
                   <div class="col-md-6">
@@ -73,35 +60,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="row mb-2">
-                  <div class="col-12">
-                    <div class="form-group">
-                      <label>Gender</label><br>
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="male"
-                          value="male"
-                          {{-- {{ $user->gender == 'male' ? 'checked' : '' }} --}}
-                        />
-                        <label class="form-check-label" for="male">Male</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input
-                          class="form-check-input"
-                          type="radio"
-                          name="gender"
-                          id="female"
-                          value="female"
-                          {{-- {{ $user->gender == 'female' ? 'checked' : '' }} --}}
-                        />
-                        <label class="form-check-label" for="female">Female</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 {{-- <!-- Password -->
                 <div class="row mb-2">
                   <div class="col-md-6">
@@ -134,43 +92,7 @@
                 </div> --}}
                 <!-- Location Fields -->
                 <div class="row mb-2">
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="province_id">Province</label>
-                      <select name="province_id" id="provinces_id" class="form-control" v-if="provinces" v-model="provinces_id">
-                        <option v-for="province in provinces" :value="province.id">@{{ province.name }}</option>
-                      </select>
-                      <select v-else class="form-control"></select>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="regencies_id">City</label>
-                      <select name="regencies_id" id="regencies_id" class="form-control" v-if="regencies" v-model="regencies_id">
-                        <option v-for="regency in regencies" :value="regency.id">@{{ regency.name }}</option>
-                      </select>
-                      <select v-else class="form-control"></select>
-                    </div>
-                  </div>
-                  {{-- <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="district_id">Kecamatan</label>
-                      <select name="district_id" id="districts_id" class="form-control" v-if="districts" v-model="districts_id">
-                        <option v-for="district in districts" :value="district.id">@{{ district.name }}</option>
-                      </select>
-                      <select v-else class="form-control"></select>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="village_id">Kelurahan</label>
-                      <select name="village_id" id="villages_id" class="form-control" v-if="villages" v-model="villages_id">
-                        <option v-for="village in villages" :value="village.id">@{{ village.name }}</option>
-                      </select>
-                      <select v-else class="form-control"></select>
-                    </div>
-                  </div> --}}
-                  <div class="col-md-4">
+                  <div class="col-md-12">
                     <div class="form-group">
                       <label for="mobile">Mobile</label>
                       <input
@@ -180,21 +102,6 @@
                         name="phone_number"
                         value="{{ $user->phone_number }}"
                       />
-                    </div>
-                  </div>
-                </div>
-                <!-- Gender Radio Buttons -->
-                <!-- Select School -->
-                <div class="row mb-2">
-                  <div class="col-12">
-                    <div class="form-group">
-                      <label for="school">School</label>
-                      <select class="form-control" name="school" id="school">
-                        <option value="">Select School</option>
-                        {{-- <option value="school1" {{ $user->school == 'school1' ? 'selected' : '' }}>School 1</option>
-                        <option value="school2" {{ $user->school == 'school2' ? 'selected' : '' }}>School 2</option>
-                        <option value="school3" {{ $user->school == 'school3' ? 'selected' : '' }}>School 3</option> --}}
-                      </select>
                     </div>
                   </div>
                 </div>

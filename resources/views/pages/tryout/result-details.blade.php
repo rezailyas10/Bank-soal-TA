@@ -68,6 +68,8 @@
       @else
         <h5>Pembahasan Soal</h5>
       @endif
+       <h6>Materi: {{ $question->lesson }}</h6>
+
         </div>
          {{-- untuk menampilkan data gambar --}}
                        @php
@@ -111,7 +113,7 @@
 
             @endif
           </div>
-
+          
           <!-- Jawaban User dan Jawaban Benar -->
           <div class="row">
             @if ($question->question_type === 'pilihan_ganda')
