@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-<div class="section-content section-dashboard-home" data-aos="fade-up">
+<div class="section-content section-dashboard-home" data-aos="fade-up" >
   <div class="container-fluid">
     <div class="dashboard-heading">
       <h2 class="dashboard-title">My Account</h2>
@@ -20,9 +20,9 @@
             @csrf
             <div class="card">
               <div class="card-body">
-                <!-- Your Name & Email -->
+                <!-- Your Name, Username & Email -->
                 <div class="row mb-2">
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <div class="form-group">
                       <label for="name">Your Name</label>
                       <input
@@ -34,9 +34,9 @@
                       />
                     </div>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <div class="form-group">
-                      <label for="name">Username</label>
+                      <label for="username">Username</label>
                       <input
                         type="text"
                         class="form-control"
@@ -46,7 +46,7 @@
                       />
                     </div>
                   </div>
-                  <div class="col-md-12">
+                  <div class="col-md-4">
                     <div class="form-group">
                       <label for="email">Your Email</label>
                       <input
@@ -59,23 +59,8 @@
                     </div>
                   </div>
                 </div>
-                {{-- <!-- Password -->
-                <div class="row mb-2">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="password">Your Password</label>
-                      <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                      />
-                      <small>Kosongan jika tidak ingin mengganti password</small>
-                    </div>
-                  </div>
-                </div> --}}
-                <!-- Combined Address Field -->
-                
+
+                <!-- Mobile -->
                 <div class="row mb-2">
                   <div class="col-md-12">
                     <div class="form-group">
@@ -90,6 +75,102 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Jenjang & Kelas -->
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="jenjang">Jenjang Pendidikan</label>
+                      <select id="jenjang" name="jenjang" class="form-control">
+                        @php
+                          $levels = ['SD','SMP','SMA','Kuliah'];
+                          $currentJenjang = old('jenjang', $user->jenjang);
+                        @endphp
+                        <option value="">— Pilih Jenjang —</option>
+                        @foreach($levels as $lvl)
+                          <option value="{{ $lvl }}" {{ $currentJenjang === $lvl ? 'selected' : '' }}>{{ $lvl }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="kelas">Kelas</label>
+                      <select id="kelas" name="kelas" class="form-control">
+                        @php
+                          $classes = ['7','8','9','10','11','12'];
+                          $currentKelas = old('kelas', $user->kelas);
+                        @endphp
+                        <option value="">— Pilih Kelas —</option>
+                        @foreach($classes as $cls)
+                          <option value="{{ $cls }}" {{ $currentKelas === $cls ? 'selected' : '' }}>{{ $cls }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sekolah -->
+                <div class="row mb-2">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="sekolah">Nama Sekolah</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="sekolah"
+                        name="sekolah"
+                        value="{{ old('sekolah', $user->sekolah) }}"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Social Media -->
+                <div class="row mb-2">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="instagram">Instagram (opsional)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="instagram"
+                        name="instagram"
+                        value="{{ old('instagram', $user->instagram) }}"
+                        placeholder="username tanpa @"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="facebook">Facebook (opsional)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="facebook"
+                        name="facebook"
+                        value="{{ old('facebook', $user->facebook) }}"
+                        placeholder="username atau URL profil"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label for="twitter">Twitter (opsional)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="twitter"
+                        name="twitter"
+                        value="{{ old('twitter', $user->twitter) }}"
+                        placeholder="username tanpa @"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="row">
                   <div class="col text-right">
@@ -98,6 +179,7 @@
                     </button>
                   </div>
                 </div>
+
               </div>
             </div>
           </form>
@@ -113,100 +195,95 @@
 <script src="https://unpkg.com/vue-toasted"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-  var locations = new Vue({
-    el: "#locations",
+  Vue.use(Toasted);
+
+  var profile = new Vue({
+    el: "#profile",
     mounted() {
       AOS.init();
-      this.getProvince();
-      // Inisialisasi nilai-nilai default
-      this.provinces_id = '{{ $user->province_id }}';
     },
-    data: {
-      provinces: null,
-      regencies: null,
-      districts: null,
-      villages: null,
-      provinces_id: null,
-      regencies_id: null,
-      districts_id: null,
-      villages_id: null,
-    },
-    methods: {
-      getProvince() {
-        var self = this;
-        axios.get('{{ route('api-provinces') }}')
-          .then((response) => {
-            self.provinces = response.data;
-            // Set nilai provinces_id jika ada, dan panggil getRegency()
-            if (self.provinces_id) {
-              self.getRegency();
-              this.regencies_id = '{{ $user->regencies_id }}';
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching provinces:', error);
-          });
-      },
-      getRegency() {
-        var self = this;
-        axios.get('{{ route('api-regencies', '') }}/' + self.provinces_id)
-          .then((response) => {
-            self.regencies = response.data;
-            if (self.regencies_id) {
-              self.getDistrict();
-              this.districts_id = '{{ $user->district_id }}';
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching regencies:', error);
-          });
-      },
-      getDistrict() {
-        var self = this;
-        axios.get('{{ route('api-districts', '') }}/' + self.regencies_id)
-          .then((response) => {
-            self.districts = response.data;
-            if (self.districts_id) {
-              self.getVillage();
-              this.villages_id = '{{ $user->village_id }}';
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching districts:', error);
-          });
-      },
-      getVillage() {
-        var self = this;
-        axios.get('{{ route('api-villages', '') }}/' + self.districts_id)
-          .then((response) => {
-            self.villages = response.data;
-          })
-          .catch((error) => {
-            console.error('Error fetching villages:', error);
-          });
+    data() {
+      return {
+        username: "{{ auth()->user()->username }}",
+        username_unavailable: false,
       }
     },
-    watch: {
-      provinces_id(val) {
-        this.regencies_id = null;
-        this.districts_id = null;
-        this.villages_id = null;
-        if (val) {
-          this.getRegency();
-        }
-      },
-      regencies_id(val) {
-        this.districts_id = null;
-        this.villages_id = null;
-        if (val) {
-          this.getDistrict();
-        }
-      },
-      districts_id(val) {
-        this.villages_id = null;
-        if (val) {
-          this.getVillage();
-        }
+    methods: {
+      checkUsername() {
+        var self = this;
+        axios.get('{{ route('api-username-check') }}', {
+          params: { username: this.username }
+        })
+        .then(function (response) {
+          if (response.data == 'Available') {
+            self.$toasted.show("Username tersedia", { position: "top-center", className: "rounded", duration: 1000 });
+            self.username_unavailable = false;
+          } else {
+            self.$toasted.error("Maaf, username sudah dipakai.", { position: "top-center", className: "rounded", duration: 1000 });
+            self.username_unavailable = true;
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      }
+    }
+  });
+
+  
+</script>
+
+<script>
+  Vue.use(Toasted);
+
+  var register = new Vue({
+    el: "#register",
+    mounted() {
+      AOS.init();
+    },
+    data() {
+      return {
+        name: "",
+        username: "",
+        email: "",
+        password: "",
+        email_unavailable: false,
+      }
+    },
+    methods: {
+      checkEmail() {
+        var self = this;
+        axios.get('{{ route('api-register-check') }}', {
+          params: {
+            email: this.email
+          }
+        })
+        .then(function (response) {
+          if (response.data == 'Unavailable') {
+            self.$toasted.show(
+              "Email bisa didaftar",
+              {
+                position: "top-center",
+                className: "rounded",
+                duration: 1000,
+              }
+            );
+            self.email_unavailable = false;
+          } else {
+            self.$toasted.error(
+              "Maaf, tampaknya email sudah terdaftar pada sistem kami.",
+              {
+                position: "top-center",
+                className: "rounded",
+                duration: 1000,
+              }
+            );
+            self.email_unavailable = true;
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     }
   });

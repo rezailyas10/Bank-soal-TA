@@ -21,24 +21,47 @@ class TryoutController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $subcategories = SubCategory::all();
-         $user = Auth::user();
-        // Tentukan view berdasarkan role
+    public function index(Request $request)
+{
+    $subcategories = SubCategory::all();
+    $user = Auth::user();
+
+    // Tentukan view berdasarkan role (JANGAN DIUBAH)
     if ($user->roles === 'ADMIN') {
-         $exams = Exam::where('exam_type','tryout')->where('created_by', Auth::user()->name)->latest()->paginate(24);
+        $query = Exam::where('exam_type', 'tryout')
+                     ->where('created_by', $user->name);
         $view = 'pages.admin.tryout.index';
     } elseif ($user->roles === 'KONTRIBUTOR') {
-        $exams = Exam::where('exam_type','tryout')->latest()->paginate(24);
+        $query = Exam::where('exam_type', 'tryout');
         $view = 'pages.kontributor.tryout.index';
     }
-        
-        return view($view,[
-            'sub_categories' => $subcategories,
-            'exams' => $exams,
-        ]);
+
+    // Tambahkan filter berdasarkan sub_category_id jika ada
+    if ($request->filled('sub_category_id')) {
+        $query->where('sub_category_id', $request->sub_category_id);
     }
+
+    // Tambahkan filter berdasarkan created_by (jika ingin filter creator lain)
+    if ($request->filled('created_by')) {
+        $query->where('created_by', $request->created_by);
+    }
+
+    // Tambahkan filter pencarian (title atau created_by)
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('title', 'like', '%' . $request->search . '%')
+              ->orWhere('created_by', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Pagination dan withQueryString agar filter tetap saat pindah halaman
+    $exams = $query->latest()->paginate(10)->withQueryString();
+
+    return view($view, [
+        'sub_categories' => $subcategories,
+        'exams' => $exams,
+    ]);
+}
 
     /**
      * Show the form for creating a new resource.

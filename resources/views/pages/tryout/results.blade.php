@@ -150,7 +150,16 @@
             padding: 20px;
             margin: 20px 0;
         }
-        
+        .pdf-download-btn {
+    color: #dc3545; /* warna merah (default bootstrap danger) */
+    border-color: #dc3545;
+    transition: all 0.3s ease;
+}
+
+.pdf-download-btn:hover {
+    color: white !important;
+    background-color: #dc3545;
+}
         @media (max-width: 768px) {
             .score-display {
                 font-size: 2.5rem;
@@ -393,6 +402,31 @@
        <br><small>Analisis setiap pertanyaan pada subtes tryout</small>
     </a>
         </div>
+         <div class="col-md-12 d-flex justify-content-center">
+    <a href="{{ route('tryout.download-pdf', ['exam' => $exam->id, 'result' => $result->id]) }}" 
+       class="btn btn-outline-danger btn-custom pdf-download-btn text-center">
+        <i class="fas fa-file-pdf me-2"></i>Download Hasil PDF
+        <br><small>Unduh laporan lengkap hasil tryout</small>
+    </a>
+    @php
+    use App\Models\RegistrationITI;
+    $registered = RegistrationITI::where('result_id', $result->id)->exists();
+@endphp
+
+@if(!$registered)
+        <a href="{{ route('register-iti.create', $result->id) }}"
+           class="btn btn-outline-primary btn-custom text-center ms-3">
+            <i class="fas fa-user-plus me-2"></i>Ajukan Pendaftaran di ITI
+            <br><small>Belum daftar</small>
+        </a>
+    @else
+        <button class="btn btn-success btn-custom text-center ms-3" disabled>
+            <i class="fas fa-check-circle me-2"></i>Sudah Daftar
+            <br><small>Terima kasih, Silahkan Menunggu Info Lebih Lanjut</small>
+        </button>
+    @endif
+</div>
+
     </div>
 
     
@@ -424,8 +458,10 @@
                         Skor: {{ number_format($sub->average_score, 2) }}
                     </span>
                 </div>
-                <small class="text-muted">
-                    Benar: {{ $sub->correct }} / {{ $sub->total }} | Salah: {{ $sub->total - $sub->correct }}
+               <small class="text-muted">
+                    Benar: {{ $sub->correct }} / {{ $sub->total }} |
+                    Salah: {{ $sub->wrong }} |
+                    Kosong: {{ $sub->empty }}
                 </small>
                 <div class="score-bar my-2">
                  <div class="score-fill {{ $fillClass }}" style="width: {{ max(1, $sub->percentage) }}%"></div>

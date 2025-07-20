@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Exam;
+use App\Models\RegistrationITI;
 use App\Models\Result;
 use App\Models\User;
 
@@ -157,6 +158,32 @@ class DashboardController extends Controller
         'acceptance_rate'
         // 'recent_exams' // DISABLED
     ));
+}
+   public function sales()
+{
+    $user = Auth::user();
+
+    if ($user->roles !== 'SALES') {
+        return redirect()->back();
+    }
+
+    $user_id = Auth::id();
+    
+    $totalRegistrations = RegistrationITI::count();
+$contactedCount = RegistrationITI::where('status', 'sudah dihubungi')->count();
+$notContactedCount = RegistrationITI::where('status', 'belum dihubungi')->count();
+
+$registrations = RegistrationITI::with(['result.user', 'result.exam'])
+    ->latest()
+    ->take(5)
+    ->get();
+
+return view('pages.sales.dashboard', compact(
+    'totalRegistrations',
+    'contactedCount',
+    'notContactedCount',
+    'registrations'
+));
 }
      
     

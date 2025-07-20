@@ -48,18 +48,20 @@
         </div>
     </div>
 
+    @if ($exam->created_by === Auth::user()->name)
     <div class="row mb-3">
         <div class="col-md-6">
-            <a href="{{ route('tryout.edit', $exam->id) }}" class="btn btn-secondary">Edit tryout</a>
+            <a href="{{ route('tryout.edit', $exam->id) }}" class="btn btn-secondary">Edit Tryout</a>
         </div>
         <div class="col-md-6 text-right">
             <form action="{{ route('tryout.destroy', $exam->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Anda yakin ingin menghapus tryout ini?');">
                 @csrf
                 @method('DELETE')
-                <button class="btn btn-danger">Hapus tryout</button>
+                <button class="btn btn-danger">Hapus Tryout</button>
             </form>
         </div>
     </div>
+@endif
 
     <hr>
 
@@ -181,7 +183,7 @@
                                        title="Edit">
                                         <i class="fas fa-edit"></i> Update
                                     </a>
-                                    @if ($question->user_id === Auth::id())
+                                    @if ($question->user_id === Auth::id() || $question->status == 'Ditolak')
                                         <form action="{{ route('question.destroy', $question->id) }}" 
                                                 method="POST" 
                                                 class="d-inline-block" 

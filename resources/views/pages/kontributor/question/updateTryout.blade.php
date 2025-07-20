@@ -107,7 +107,21 @@ $questionTextFixed = old('question_text', isset($question->question_text) ? fixI
         </div>
 @endif
 
-        <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+       
+        @if ($question->exam->exam_type == 'latihan soal')
+            <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ route('exam.show', $question->exam->slug) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Ujian
+        </a>
+         <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+    </div>
+        @else
+             <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ route('tryout.show', $question->exam->slug) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Ujian
+        </a>
+         <button type="submit" class="btn btn-success">Simpan Perubahan</button>
+        @endif
     </form>
 </div>
 @endsection

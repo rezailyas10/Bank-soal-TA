@@ -30,7 +30,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/register-profile';
 
     /**
      * Create a new controller instance.
@@ -65,7 +65,6 @@ class RegisterController extends Controller
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:50'],
-            'username' => ['required', 'string', 'max:50'],
             'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -81,7 +80,6 @@ class RegisterController extends Controller
     {
         return User::create([
             'name' => $data['name'],
-            'username' => $data['username'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
@@ -95,4 +93,8 @@ class RegisterController extends Controller
     public function check(Request $request){
         return User::where('email', $request->email)->count() > 0 ? 'Available' : 'Unavailable';
     }
+    public function checkUsername(Request $request){
+    return User::where('username', $request->username)->count() > 0 ? 'Unavailable' : 'Available';
+}
+
 }

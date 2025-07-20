@@ -65,19 +65,65 @@
                             </a>
                         </div>
                     </div>
+                    @php
+                        $hasTable = str_contains($question->question_text, '<table');
+                    @endphp
 
                     <div class="mb-3">
-                        <strong><i class="fas fa-question"></i> Soal:</strong>
-                        <div class="border rounded p-3 mt-2 bg-light content-container">
+                    <strong><i class="fas fa-question"></i> Soal:</strong>
+                    <div class="border rounded p-3 mt-2 bg-light content-container">
+                        @if ($hasTable)
+                            {{-- Tambahkan wrapper styling untuk tabel --}}
+                            <div class="table-responsive">
+                                {{-- Tambahkan style table agar rapi --}}
+                                <style>
+                                    table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        margin-top: 10px;
+                                    }
+                                    th, td {
+                                        border: 1px solid #ccc;
+                                        padding: 8px;
+                                        text-align: center;
+                                    }
+                                    
+                                </style>
+                                {!! $question->question_text !!}
+                            </div>
+                        @else
                             {!! $question->question_text !!}
-                        </div>
+                        @endif
                     </div>
+                </div>
 
                     @if($question->explanation)
+                    @php
+                        $hasExplanationTable = str_contains($question->explanation, '<table');
+                    @endphp
+
                     <div class="mb-3">
                         <strong><i class="fas fa-lightbulb"></i> Penjelasan:</strong>
                         <div class="border rounded p-3 mt-2 bg-light content-container">
-                            {!! $question->explanation !!}
+                            @if ($hasExplanationTable)
+                                <div class="table-responsive">
+                                    <style>
+                                        table {
+                                            width: 100%;
+                                            border-collapse: collapse;
+                                            margin-top: 10px;
+                                        }
+                                        th, td {
+                                            border: 1px solid #ccc;
+                                            padding: 8px;
+                                            text-align: center;
+                                        }
+                                    </style>
+                                    {!! $question->explanation !!}
+                                </div>
+                            @else
+                                {!! $question->explanation !!}
+                            @endif
                         </div>
                     </div>
                     @endif
@@ -289,10 +335,17 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="d-flex justify-content-between align-items-center">
+     @if ($question->exam->exam_type == 'latihan soal')
+            <div class="d-flex justify-content-between align-items-center">
+        <a href="{{ route('exam.show', $question->exam->slug) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Ujian
+        </a>
+        @else
+             <div class="d-flex justify-content-between align-items-center">
         <a href="{{ route('tryout.show', $question->exam->slug) }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali ke Ujian
         </a>
+        @endif
         
         @if(auth()->user()->roles == 'KONTRIBUTOR')
     <div class="btn-group">

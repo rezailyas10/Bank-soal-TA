@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
@@ -59,6 +61,9 @@ public function showLoginForm(Request $request)
         case 'KONTRIBUTOR':
             return redirect()->route('kontributor-dashboard');
 
+        case 'SALES':
+            return redirect()->route('sales-dashboard');
+
         case 'USER':
             $default = route('home');
             return redirect()->intended($default); // hanya USER yang pakai intended
@@ -88,4 +93,21 @@ public function showLoginForm(Request $request)
     {
         $this->middleware('guest')->except('logout');
     }
+
+   protected function sendFailedLoginResponse(Request $request)
+{
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        // Email tidak ditemukan
+        throw ValidationException::withMessages([
+            'email' => ['Email tidak terdaftar.'],
+        ]);
+    }
+
+    // Email ada, berarti password salah
+    throw ValidationException::withMessages([
+        'password' => ['Password salah.'],
+    ]);
+}
 }

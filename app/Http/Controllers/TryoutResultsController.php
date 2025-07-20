@@ -142,8 +142,11 @@ public function leaderboard(Request $request, $examId, $resultId)
         // 1. Ambil data Exam
         $exam = Exam::findOrFail($examId);
 
+        
+
         // 2. Ambil data Result, validasi milik user
         $result = Result::findOrFail($resultId);
+        
         if ($result->user_id !== Auth::id()) {
             abort(403, 'Unauthorized access');
         }

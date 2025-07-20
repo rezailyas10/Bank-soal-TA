@@ -21,25 +21,45 @@ class ExamController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $subcategories = SubCategory::all();
-        $user = Auth::user();
-        // Tentukan view berdasarkan role
+     public function index(Request $request)
+{
+    $subcategories = SubCategory::all();
+    $user = Auth::user();
+
+    // Tentukan query dan view berdasarkan role
     if ($user->roles === 'ADMIN') {
-         $exams = Exam::where('exam_type','latihan soal')->latest()->paginate(24);
-        $view = 'pages.admin.exam.index';
+        $query = Exam::where('exam_type', 'latihan soal');
+        $view  = 'pages.admin.exam.index';
     } elseif ($user->roles === 'KONTRIBUTOR') {
-        $exams = Exam::where('exam_type','latihan soal')->latest()->paginate(24);
-        $view = 'pages.kontributor.exam.index';
+        $query = Exam::where('exam_type', 'latihan soal')
+                     ->where('created_by', $user->name);
+        $view  = 'pages.kontributor.exam.index';
     }
-        
-        return view($view,[
-            'sub_categories' => $subcategories,
-            'exams' => $exams,
-        ]);
-        
+
+    // Filter berdasarkan sub_category_id jika ada
+    if ($request->filled('sub_category_id')) {
+        $query->where('sub_category_id', $request->sub_category_id);
     }
+    if ($request->filled('created_by')) {
+    $query->where('created_by', $request->created_by);
+}
+
+    // Filter berdasarkan pencarian title atau created_by
+    if ($request->filled('search')) {
+        $query->where(function ($q) use ($request) {
+            $q->where('title', 'like', '%' . $request->search . '%')
+              ->orWhere('created_by', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Pagination dan query string tetap disertakan
+    $exams = $query->latest()->paginate(10)->withQueryString();
+
+    return view($view, [
+        'sub_categories' => $subcategories,
+        'exams' => $exams,
+    ]);
+}
 
     /**
      * Show the form for creating a new resource.

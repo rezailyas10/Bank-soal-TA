@@ -44,8 +44,8 @@
           <div class="list-group list-group-flush">
             <a
               href="{{ route('admin-dashboard') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('admin**')) ? 'active' : '' }} "
-              >Dashboard</a
+               class="list-group-item list-group-item-action {{ request()->routeIs('admin-dashboard') ? 'active' : '' }}">
+              Dashboard</a
             >
             <div class="list-group-item p-0">
   <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
@@ -239,8 +239,8 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link d-inline-block" href="#">
-                    Cart
+                  <a class="nav-link d-inline-block" href="{{route('home')}}">
+                   Back to Home
                   </a>
                 </li>
               </ul>

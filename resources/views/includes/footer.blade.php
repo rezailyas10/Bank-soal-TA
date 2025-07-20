@@ -90,7 +90,7 @@
                 <div class="footer-logo">
                     SNBT
                 </div>
-                <div class="version-title">Mobile version</div>
+                {{-- <div class="version-title">Mobile version</div>
                 <div class="d-flex flex-wrap">
                     <a href="#" class="download-btn">
                         <img src="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/3.0.1/googleplay.svg" alt="Play Store">
@@ -114,7 +114,7 @@
                 </div>
                 <div class="mt-3">
                     <a href="#" class="installation-link">Cara Instalasi?</a>
-                </div>
+                </div> --}}
             </div>
             <!-- Company info column -->
             <div class="col-lg-2 col-md-6 mb-4 mb-md-0"  >

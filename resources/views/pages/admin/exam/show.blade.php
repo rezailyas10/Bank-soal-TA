@@ -43,6 +43,7 @@
         </div>
     </div>
 
+    @if ($exam->created_by == Auth::user()->name)
     <div class="row mb-3">
         <div class="col-md-6">
             <a href="{{ route('question.create', ['exam_id' => $exam->id]) }}" class="btn btn-primary">Tambah Pertanyaan</a>
@@ -61,6 +62,7 @@
             </form>
         </div>
     </div>
+@endif
 
     <hr>
 
@@ -198,6 +200,18 @@
                                        title="Edit">
                                         <i class="fas fa-edit"></i> Update
                                     </a>
+                                     @if ($question->user_id === Auth::id())
+                                        <form action="{{ route('question.destroy', $question->id) }}" 
+                                                method="POST" 
+                                                class="d-inline-block" 
+                                                onsubmit="return confirm('Anda yakin ingin menghapus pertanyaan ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger" title="Hapus">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </button>
+                                    </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

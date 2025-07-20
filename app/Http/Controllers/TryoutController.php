@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use App\Models\Exam;
 use App\Models\Major;
@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use App\Models\ResultDetails;
 use App\Models\ResultsEvaluation;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class TryoutController extends Controller
@@ -321,6 +322,8 @@ $universityRankings = array_values($universityRankings);
         'questions.sub_category_id AS id',
         'sub_categories.name AS name',
         DB::raw('SUM(CASE WHEN result_details.correct = 1 THEN 1 ELSE 0 END) AS correct'),
+        DB::raw('SUM(CASE WHEN result_details.correct = 0 AND (result_details.answer IS NOT NULL AND result_details.answer <> \'\') THEN 1 ELSE 0 END) AS wrong'),
+        DB::raw('SUM(CASE WHEN result_details.answer IS NULL OR result_details.answer = \'\' THEN 1 ELSE 0 END) AS `empty`'),
         DB::raw('COUNT(*) AS total'),
         DB::raw('(SUM(CASE WHEN result_details.correct = 1 THEN 1 ELSE 0 END) / COUNT(*) * 100) AS percentage'),
         DB::raw('AVG(result_details.score) AS average_score'),
@@ -438,5 +441,39 @@ return view('pages.tryout.result-details', compact('exam', 'question', 'userResu
         'difficultyCategory','resultDetails'));
 
     }
+
+public function downloadResultPdf($examId, $resultId)
+{
+    // Ambil View dari fungsi result() yang sudah ada
+    $view = $this->result($examId, $resultId);
+    $data = $view->getData(); // Ambil array data dari View
+
+    if (!$data) {
+        return redirect()->back();
+    }
+
+    // Ambil evaluasi dan rekomendasi dari DB
+    $resultEvaluations = ResultsEvaluation::where('result_id', $resultId)->get();
+
+    // Inisialisasi Parsedown
+    $Parsedown = new \Parsedown();
+
+    // Parsing ke HTML satu per satu
+    $data['evaluations'] = $resultEvaluations->pluck('evaluation')->map(function ($rawEvaluation) use ($Parsedown) {
+        return $Parsedown->text($rawEvaluation);
+    });
+
+    $data['recommendations'] = $resultEvaluations->pluck('recommendation')->map(function ($rawRecommendation) use ($Parsedown) {
+        return $Parsedown->text($rawRecommendation);
+    });
+
+    // Generate PDF
+    $pdf = PDF::loadView('pages.tryout.result-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+
+    $fileName = 'Hasil_Tryout_' . $data['result']->user->name . '_' . date('Y-m-d') . '.pdf';
+    return $pdf->download($fileName);
+}
+
 
 }

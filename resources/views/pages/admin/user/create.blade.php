@@ -64,6 +64,7 @@ data-aos="fade-up"
                                     <option value="ADMIN">Admin</option>
                                     <option value="KONTRIBUTOR">Kontributor</option>
                                     <option value="USER">User</option>
+                                    <option value="SALES">Sales</option>
                                 </select>
                             </div>
                         </div>

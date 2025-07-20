@@ -183,14 +183,11 @@
                    title="Detail">
                     <i class="fas fa-eye"></i> Detail
                 </a>
-               @if(!in_array(strtolower($question->status ?? 'ditinjau'), ['diterima', 'ditolak']))
                     <a href="{{ route('question.edit', $question->id) }}" 
                     class="btn btn-sm btn-warning" 
                     title="Edit">
                         <i class="fas fa-edit"></i> Edit
                     </a>
-                @endif
-                @if(in_array(strtolower($question->status ?? 'ditinjau'), ['ditinjau', 'ditolak']))
                     <form action="{{ route('question.destroy', $question->id) }}" 
                           method="POST" 
                           class="d-inline-block" 
@@ -201,7 +198,6 @@
                             <i class="fas fa-trash"></i> Hapus
                         </button>
                     </form>
-                @endif
             </div>
         </td>
     </tr>

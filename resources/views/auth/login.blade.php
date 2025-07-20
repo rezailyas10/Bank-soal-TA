@@ -6,6 +6,8 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> 
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
 </head>
 
 <style>
@@ -15,6 +17,43 @@
     border-top-right-radius: 24px;
     border-bottom-right-radius: 24px;
     }
+
+   .toggle-password {
+    position: absolute;
+    top: 50px;
+    right: 15px; /* Geser sedikit ke kiri agar benar-benar di dalam input */
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+@media (max-width: 760px) {
+  /* Sembunyikan gambar */
+  .row-login .col-lg-6 {
+    display: none !important;
+  }
+
+  /* Center form */
+  .row-login .col-lg-5 {
+    margin: 0 auto;
+  }
+
+  /* Buat input, form-group, dan button full width */
+  .row-login .col-lg-5 .form-group,
+  .row-login .col-lg-5 .form-control,
+  .row-login .col-lg-5 .btn {
+    width: 100% !important;
+  }
+
+  /* Tambahkan padding kanan di input supaya ikon mata gak niban teks */
+  .row-login .col-lg-5 .form-control.pe-5 {
+    padding-right: 2.5rem !important;
+  }
+
+}
+
 </style>
 @section('content')
     <!-- Page Content -->
@@ -46,26 +85,43 @@
                                     </span>
                                 @enderror
                   </div>
-                  <div class="form-group">
+                  <div class="form-group w-75 position-relative">
                     <label>Password</label>
-                    <input id="password" type="password" class="form-control w-75 @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                    <input id="password" type="password"
+                            class="form-control pe-5 @error('password') is-invalid @enderror"
+                            name="password" required autocomplete="current-password">
+                    <span class="fa fa-fw fa-eye toggle-password" data-target="password"></span>
+                    @error('password')
+                        <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                    @enderror
+                    <div class="mt-2">
+                        <a href="{{ route('password.request') }}" class="small text-primary">Lupa password?</a>
+                    </div>
+                    </div>
 
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                  </div>
-                  <button
+
+                   <button
                   type="submit"
                     class="btn btn-block w-75 mt-4 text-light"
                     style="background-color: #1A4F80;"
                   >
-                    Sign In to My Account
+                    Masuk
                   </button>
                   <a class="btn btn-signup w-75 mt-2" href="{{ route('register') }}">
-                    Sign Up
+                    Daftar
                   </a>
+                  <a href="{{ route('redirectToGoogle') }}" 
+                    class="btn btn-light w-75 mt-2 d-flex align-items-center justify-content-center border"
+                    style="gap: 8px;">
+                        {{-- Ikon Google full color (SVG) --}}
+                        <svg width="20" height="20" viewBox="0 0 533.5 544.3">
+                            <path fill="#4285f4" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.4h146.9c-6.3 33.9-25.5 62.6-54.4 81.7l87.7 68.1c51.3-47.3 81.3-117 81.3-194.8z"/>
+                            <path fill="#34a853" d="M272 544.3c73.8 0 135.7-24.5 180.9-66.5l-87.7-68.1c-24.4 16.3-55.5 25.8-93.2 25.8-71.5 0-132-48.2-153.7-112.8l-89.7 69.3c42.7 84.3 130.5 142.3 243.4 142.3z"/>
+                            <path fill="#fbbc04" d="M118.3 322.7c-10.2-30.1-10.2-62.5 0-92.6L28.6 160.8c-30.5 59.9-30.5 130.5 0 190.4l89.7-69.3z"/>
+                            <path fill="#ea4335" d="M272 107.7c39.9-.6 78.2 14 107.5 40.9l80.2-80.2C411.4 24.3 344.1-1.3 272 0 159.1 0 71.3 57.9 28.6 142.2l89.7 69.3c21.7-64.6 82.2-112.8 153.7-112.8z"/>
+                        </svg>
+                        Masuk Dengan Google
+                    </a>
                 </form>
               </div>
             </div>
@@ -144,3 +200,26 @@
 
 
 @endsection
+
+@push('addon-script')
+<script>
+    document.querySelectorAll('.toggle-password').forEach(function (element) {
+        element.addEventListener('click', function () {
+            let targetId = this.getAttribute('data-target');
+            let input = document.getElementById(targetId);
+
+            if (input) {
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.classList.remove("fa-eye");
+                    this.classList.add("fa-eye-slash");
+                } else {
+                    input.type = "password";
+                    this.classList.remove("fa-eye-slash");
+                    this.classList.add("fa-eye");
+                }
+            }
+        });
+    });
+</script>
+@endpush

@@ -6,6 +6,9 @@
         case 'KONTRIBUTOR':
             $layout = 'layouts.kontributor';
             break;
+        case 'SALES':
+            $layout = 'layouts.sales';
+            break;
         case 'USER':
             $layout = 'layouts.dashboard';
             break;
@@ -17,13 +20,41 @@
 
 @extends($layout)
 
+<style>
+  .toggle-password {
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 38px;
+  z-index: 2;
+    color: #6c757d;
+}
 
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> 
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+
+ 
 
 @section('title')
   Change Password
 @endsection
 
 @section('content')
+  @if(session('success'))
+     <div class="alert alert-success">
+         {{ session('success') }}
+     </div>
+ @endif
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 <div class="section-content section-dashboard-home" data-aos="fade-up">
   <div class="container-fluid">
     <div class="dashboard-heading">
@@ -33,35 +64,35 @@
     <div class="dashboard-content">
       <div class="row">
         <div class="col-8 mx-auto">
-          <form action="{{ route('dashboard-settings-redirect', 'dashboard-settings-store') }}" method="POST">
+         <form action="{{ route('dashboard-settings-update') }}" method="POST">
             @csrf
             <div class="card">
               <div class="card-body">
                 <!-- Old Password -->
-                <div class="form-group position-relative">
-                  <label for="oldPassword">Old Password</label>
-                  <input type="password" class="form-control" id="oldPassword" name="old_password" placeholder="Enter your old password" required />
-                  <span toggle="#oldPassword" class="fa fa-fw fa-eye toggle-password"></span>
-                  <small id="oldPasswordFeedback" class="form-text text-muted"></small>
-                </div>
+                  <div class="form-group position-relative">
+                    <label for="oldPassword">Old Password</label>
+                    <input type="password" class="form-control" id="oldPassword" name="current_password" placeholder="Enter your old password" required />
+                    <span class="fa fa-fw fa-eye toggle-password" data-target="oldPassword"></span>
+                    <small id="oldPasswordFeedback" class="form-text text-muted"></small>
+                  </div>
 
-                <!-- New Password -->
-                <div class="form-group position-relative">
-                  <label for="newPassword">New Password</label>
-                  <input type="password" class="form-control" id="newPassword" name="new_password" placeholder="Enter your new password" required />
-                  <span toggle="#newPassword" class="fa fa-fw fa-eye toggle-password"></span>
-                  <small id="newPasswordFeedback" class="form-text text-muted">
-                    Your password must be at least 8 characters long, contain letters and numbers.
-                  </small>
-                </div>
+                  <!-- New Password -->
+                  <div class="form-group position-relative">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" name="password" placeholder="Enter your new password" required />
+                    <span class="fa fa-fw fa-eye toggle-password" data-target="newPassword"></span>
+                    <small id="newPasswordFeedback" class="form-text text-muted">
+                      Your password must be at least 8 characters long, contain letters and numbers.
+                    </small>
+                  </div>
 
-                <!-- Confirm New Password -->
-                <div class="form-group position-relative">
-                  <label for="confirmPassword">Confirm New Password</label>
-                  <input type="password" class="form-control" id="confirmPassword" name="confirm_password" placeholder="Confirm your new password" required />
-                  <span toggle="#confirmPassword" class="fa fa-fw fa-eye toggle-password"></span>
-                  <small id="confirmPasswordFeedback" class="form-text text-muted"></small>
-                </div>
+                  <!-- Confirm New Password -->
+                  <div class="form-group position-relative">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="password_confirmation" placeholder="Confirm your new password" required />
+                    <span class="fa fa-fw fa-eye toggle-password" data-target="confirmPassword"></span>
+                    <small id="confirmPasswordFeedback" class="form-text text-muted"></small>
+                  </div>
 
                 <!-- Submit Button -->
                 <div class="row">
@@ -82,14 +113,24 @@
 
 @push('addon-script')
 <script>
-  document.querySelectorAll('.toggle-password').forEach(element => {
-    element.addEventListener('click', function () {
-      this.classList.toggle('fa-eye');
-      this.classList.toggle('fa-eye-slash');
-      let input = document.querySelector(this.getAttribute('toggle'));
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
+ document.querySelectorAll('.toggle-password').forEach(function (element) {
+  element.addEventListener('click', function () {
+    let targetId = this.getAttribute('data-target');
+    let input = document.getElementById(targetId);
+
+    if (input) {
+      if (input.type === "password") {
+        input.type = "text";
+        this.classList.remove("fa-eye");
+        this.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        this.classList.remove("fa-eye-slash");
+        this.classList.add("fa-eye");
+      }
+    }
   });
+});
 
   // Validasi Password
   document.getElementById('newPassword').addEventListener('input', function () {
@@ -98,12 +139,15 @@
     let regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     
     if (password.length === 0) {
+    feedback.classList.remove("text-muted");
       feedback.innerText = "Your password must be at least 8 characters long, contain letters and numbers.";
       feedback.style.color = "gray";
     } else if (!regex.test(password)) {
+    feedback.classList.remove("text-muted");
       feedback.innerText = "Password must contain at least 8 characters with letters and numbers.";
       feedback.style.color = "red";
     } else {
+    feedback.classList.remove("text-muted");
       feedback.innerText = "Strong password!";
       feedback.style.color = "green";
     }
@@ -117,23 +161,53 @@
     if (confirmPassword.length === 0) {
       feedback.innerText = "";
     } else if (newPassword !== confirmPassword) {
+    feedback.classList.remove("text-muted");
       feedback.innerText = "Passwords do not match!";
       feedback.style.color = "red";
     } else {
+    feedback.classList.remove("text-muted");
       feedback.innerText = "Passwords match!";
       feedback.style.color = "green";
     }
   });
 
-  document.getElementById('oldPassword').addEventListener('input', function () {
-    let feedback = document.getElementById('oldPasswordFeedback');
-    
-    if (this.value.length === 0) {
-      feedback.innerText = "";
+   document.getElementById('oldPassword').addEventListener('input', function () {
+  let feedback = document.getElementById('oldPasswordFeedback');
+  let currentPassword = this.value;
+
+  if (currentPassword.length === 0) {
+    feedback.innerText = "";
+    return;
+  }
+
+  feedback.innerText = "Checking old password...";
+  feedback.style.color = "gray";
+
+  fetch("{{ route('password.check') }}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-TOKEN": "{{ csrf_token() }}"
+    },
+    body: JSON.stringify({ current_password: currentPassword })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.valid) {
+      feedback.classList.remove("text-muted");
+      feedback.innerText = "Old password is correct.";
+      feedback.style.color = "green";
     } else {
-      feedback.innerText = "Checking old password...";
-      feedback.style.color = "gray";
+    feedback.classList.remove("text-muted");
+      feedback.innerText = "Old password is incorrect.";
+      feedback.style.color = "red";
     }
+  })
+  .catch(error => {
+  feedback.classList.remove("text-muted");
+    feedback.innerText = "Error checking password.";
+    feedback.style.color = "red";
   });
+});
 </script>
 @endpush

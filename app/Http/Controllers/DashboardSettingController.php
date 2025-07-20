@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Regency;
+use App\Models\Village;
 use App\Models\Category;
 use App\Models\District;
 use App\Models\Province;
-use App\Models\Regency;
-use App\Models\Village;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class DashboardSettingController extends Controller
 {
@@ -41,6 +42,8 @@ class DashboardSettingController extends Controller
         $view = 'pages.kontributor.dashboard-account';
     } elseif(($user->roles === 'USER')) {
         $view = 'pages.dashboard.dashboard-account';
+    } elseif(($user->roles === 'SALES')) {
+        $view = 'pages.sales.dashboard-account';
     }
 
     return view($view, [
@@ -60,5 +63,52 @@ class DashboardSettingController extends Controller
     } catch (\Exception $e) {
         return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
+
+public function updatePassword(Request $request)
+{
+    try {
+        // Jika ada password, berarti ini update password
+        if ($request->has('password') && $request->filled('password')) {
+            $request->validate([
+                'current_password' => 'required',
+                'password' => 'required|min:8|confirmed',
+            ]);
+
+            $user = Auth::user();
+            
+            if (!Hash::check($request->current_password, $user->password)) {
+                return redirect()->back()->with('error', 'Password lama tidak sesuai!');
+            }
+            
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+        } else {
+            // Update data lain
+            $data = $request->all();
+            $item = Auth::user();
+            $item->update($data);
+        }
+
+        return redirect()->back()->with('success', 'Data berhasil diperbarui!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+    }
+}
+
+public function checkPassword(Request $request)
+{
+    $currentPassword = $request->input('current_password');
+    $user = auth()->user();
+
+    // // DEBUG (sementara)
+    // \Log::info("Plain: " . $currentPassword);
+    // \Log::info("Hashed: " . $user->password);
+    // \Log::info("Match? " . (Hash::check($currentPassword, $user->password) ? 'yes' : 'no'));
+
+    $isValid = Hash::check($currentPassword, $user->password);
+
+    return response()->json(['valid' => $isValid]);
 }
 }

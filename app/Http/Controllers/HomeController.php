@@ -31,7 +31,13 @@ class HomeController extends Controller
             // Render homepage user
             return view('pages.home');
         }
+        elseif ($role === 'SALES') {
+            // Render homepage sales
+            return view('pages.sales.dashboard');
     }
+
+        }
+    
     $universities = University::all();
         return view('pages.home',compact('universities'));
     }

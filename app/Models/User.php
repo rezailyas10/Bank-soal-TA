@@ -29,6 +29,15 @@ class User extends Authenticatable
         'village_id',
         'country',
         'phone_number',
+        // tambahkan baris berikut:
+        'jenjang',
+        'kelas',
+        'sekolah',
+        'instansi',
+        'instagram',
+        'facebook',
+        'twitter',
+        'google_id'
         
     ];
 

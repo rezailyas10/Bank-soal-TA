@@ -40,13 +40,28 @@
         </div>
     @endif
 
-    <!-- Create Button -->
-    <a href="{{ route('exam.create') }}" class="btn-create">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-        </svg>
-        Buat tryout Baru
-    </a>
+   
+     <!-- Filter Section -->
+    <div class="filter-container">
+        <form method="GET" action="{{ route('tryout.index') }}" id="filterForm">
+            <div class="filter-row">             
+                <div class="filter-group">
+                    <label for="search" class="filter-label">Cari Tryout</label>
+                    <input type="text" name="search" id="search" class="filter-input" value="{{ request('search') }}" placeholder="Masukkan nama Tryout...">
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter-apply">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        Terapkan
+                    </button>
+                    <a href="{{ route('tryout.index') }}" class="btn-filter-reset">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <!-- Table Container -->
     <div class="table-container">
@@ -138,5 +153,24 @@
         </div>
         @endif
     </div>
+     <!-- Pagination -->
+    @if($exams->hasPages())
+    <div class="pagination-container">
+        {{ $exams->links() }}
+    </div>
+    @endif
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterForm = document.getElementById('filterForm');
+        const selects = filterForm.querySelectorAll('select');
+
+        selects.forEach(function(select) {
+            select.addEventListener('change', function () {
+                filterForm.submit();
+            });
+        });
+    });
+</script>
+
 @endsection

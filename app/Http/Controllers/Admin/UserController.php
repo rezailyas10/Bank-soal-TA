@@ -22,21 +22,9 @@ class UserController extends Controller
             $query = User::query();
             return DataTables::of($query)
             ->addColumn('action', function($item) {
-                return '<div class="btn-group">
-                <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle mr-1 mb-1"
-                Type="Button" id="action" data-toggle="dropdown">
-                    Aksi
-                </button>
-                <div class="dropdown-menu">
-                    <a href="' .route('user.edit', $item->id).'" class="dropdown-item">Sunting</a>
-                    <form action="' .route('user.destroy', $item->id).'" method="POST">
-                        '.method_field('delete') . csrf_field() .'
-                        <button type="submit" class="dropdown-item text-danger">Hapus</button>
-                    </form>
-                </div>
-                </div>
-                </div> ';
+                return '<a href="' .route('user.show', $item->id).'" class="btn btn-info btn-sm">
+                Detail
+            </a>';
 
             })
             ->rawColumns(['action'])
@@ -71,11 +59,11 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
-
+        public function show($id)
+        {
+            $user = User::with('userMajor.major')->findOrFail($id);
+            return view('pages.admin.user.show', compact('user'));
+        }
     /**
      * Show the form for editing the specified resource.
      */

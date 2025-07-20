@@ -60,22 +60,34 @@
 
                         @endphp
             <div class="question-content question-box" style="{{ $index === 0 ? '' : 'display:none;' }}" data-index="{{ $index }}">
-              @php
-                      $questionText = $question->question_text;
-
-                      if ($question->question_type === 'pilihan_majemuk') {
-                          $plainText = strip_tags($question->question_text);
-                          $words = preg_split('/\s+/', trim($plainText));
-                          $countWords = count($words);
-
-                          // Buat teks pertanyaan tanpa 1 kata terakhir
-                          $questionText = $countWords > 2 
-                              ? implode(' ', array_slice($words, 0, $countWords - 2))
-                              : '';
-                                                }
-                    @endphp
-
-            <p class="option-text">{!! $questionText !!}</p>
+             
+@php
+    $hasTable = str_contains($question->question_text, '<table');
+@endphp
+            <p class="option-text">@if ($hasTable)
+            {{-- Tambahkan wrapper styling untuk tabel --}}
+            <div class="table-responsive">
+                {{-- Tambahkan style table agar rapi --}}
+                <style>
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    th, td {
+                        border: 1px solid #ccc;
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: #f8f9fa;
+                    }
+                </style>
+                {!! $question->question_text !!}
+            </div>
+        @else
+            {!! $fixedquestiontext !!}
+        @endif</p>
               @if($question->photo)
                 <img src="{{ asset('storage/' . $question->photo) }}" alt="Question Image" class="img-fluid">
               @endif
@@ -112,10 +124,28 @@
                   <h6>Pilihan Jawaban (pilihan majemuk)</h6>
                   @if($question->multipleOption)
                     @php
-                        $plainText = strip_tags($question->question_text);
-              $words = preg_split('/\s+/', trim($plainText));
-              $lastWord = end($words);
-                @endphp
+                        $plainText = strtolower(strip_tags($question->question_text));
+                        $defaultWords = ['mendukung', 'memperlemah', 'memperkuat', 'menguatkan', 'melemahkan'];
+
+                        $matchedWord = null;
+
+                        foreach ($defaultWords as $keyword) {
+                            if (str_contains($plainText, $keyword)) {
+                                $matchedWord = ucfirst($keyword);
+                                break;
+                            }
+                        }
+
+                        if ($matchedWord) {
+                            $yesLabel = $matchedWord;
+                            $noLabel  = 'Tidak ' . $matchedWord;
+                            $isStatementValid = false;
+                        } else {
+                            $yesLabel = 'Benar';
+                            $noLabel  = 'Salah';
+                            $isStatementValid = true;
+                        }
+                    @endphp
                     @php
                       $options = [
                         'multiple1' => $question->multipleOption->multiple1 ?? null,
@@ -132,8 +162,8 @@
                         <thead>
                           <tr>
                             <th>Pernyataan</th>
-                            <th class="text-center">{{ $lastWord }}</th>
-                            <th class="text-center"> Tidak {{ $lastWord }}</th>
+                            <th class="text-center">{{ $yesLabel }}</th>
+                            <th class="text-center"> {{ $noLabel }}</th>
                           </tr>
                         </thead>
                         <tbody>

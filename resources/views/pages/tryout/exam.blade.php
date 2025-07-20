@@ -83,22 +83,34 @@
                  style="{{ $i===0?'':'display:none;' }}"
                  data-index="{{ $i }}">
               <!-- … semua markup pertanyaan & opsi sama seperti semula … -->
-               @php
-                      $questionText = $question->question_text;
 
-                      if ($question->question_type === 'pilihan_majemuk') {
-                          $plainText = strip_tags($question->question_text);
-                          $words = preg_split('/\s+/', trim($plainText));
-                          $countWords = count($words);
-
-                          // Buat teks pertanyaan tanpa 1 kata terakhir
-                          $questionText = $countWords > 2 
-                              ? implode(' ', array_slice($words, 0, $countWords - 2))
-                              : '';
-                                                }
-                    @endphp
-
-            <p>{!! $questionText !!}</p>
+            @php
+                $hasTable = str_contains($question->question_text, '<table');
+            @endphp
+             <p>@if ($hasTable)
+            {{-- Tambahkan wrapper styling untuk tabel --}}
+            <div class="table-responsive">
+                {{-- Tambahkan style table agar rapi --}}
+                <style>
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    th, td {
+                        border: 1px solid #ccc;
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: #f8f9fa;
+                    }
+                </style>
+                {!! $question->question_text !!}
+            </div>
+        @else
+            {!! $fixedquestiontext !!}
+        @endif</p>
               @if($question->photo)
                 <img src="{{ asset('storage/'.$question->photo) }}"
                      class="img-fluid mb-3">
@@ -134,12 +146,29 @@
               @elseif($question->question_type==='pilihan_majemuk')
                 <div class="options mt-5">
                   <h6>Pilihan Majemuk</h6>
-                  @php
-            // Ambil teks question_text, hapus tag HTML supaya mudah ambil kata
-            $plainText = strip_tags($question->question_text);
-              $words = preg_split('/\s+/', trim($plainText));
-              $lastWord = end($words);
-        @endphp
+                   @php
+                        $plainText = strtolower(strip_tags($question->question_text));
+                        $defaultWords = ['mendukung', 'memperlemah', 'memperkuat', 'menguatkan', 'melemahkan'];
+
+                        $matchedWord = null;
+
+                        foreach ($defaultWords as $keyword) {
+                            if (str_contains($plainText, $keyword)) {
+                                $matchedWord = ucfirst($keyword);
+                                break;
+                            }
+                        }
+
+                        if ($matchedWord) {
+                            $yesLabel = $matchedWord;
+                            $noLabel  = 'Tidak ' . $matchedWord;
+                            $isStatementValid = false;
+                        } else {
+                            $yesLabel = 'Benar';
+                            $noLabel  = 'Salah';
+                            $isStatementValid = true;
+                        }
+                    @endphp
                   @php
                     $opts = [
                       'multiple1'=>$question->multipleOption->multiple1,
@@ -155,8 +184,8 @@
                       <thead>
                         <tr>
                           <th>Pernyataan</th>
-                       <th class="text-center">{{ $lastWord }}</th>
-                            <th class="text-center"> Tidak {{ $lastWord }}</th>
+                       <th class="text-center">{{ $yesLabel }}</th>
+                            <th class="text-center">{{ $noLabel }}</th>
                         </tr>
                       </thead>
                       <tbody>

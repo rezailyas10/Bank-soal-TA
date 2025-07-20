@@ -50,6 +50,7 @@
           <h5>Pembahasan Soal No. {{ $exam->questions->search(function($item) use ($question) {
             return $item->id == $question->id;
           }) + 1 }}</h5>
+           <h6>Materi: {{ $question->lesson }}</h6>
         </div>
 
         {{-- untuk menampilkan data gambar --}}
@@ -73,26 +74,32 @@
           <div class="question-box mb-4">
             <h6 class="fw-bold">Pertanyaan:</h6>
             @php
-                      $questionText = $question->question_text;
-
-                      if ($question->question_type === 'pilihan_majemuk') {
-                          $plainText = strip_tags($question->question_text);
-                          $words = preg_split('/\s+/', trim($plainText));
-                          $countWords = count($words);
-
-                          // Buat teks pertanyaan tanpa 1 kata terakhir
-                          $questionTextWithoutLast3 = $countWords > 2 
-                              ? implode(' ', array_slice($words, 0, $countWords - 2))
-                              : '';
-                                                }
-                    @endphp
-           
-            @if ($question->question_type === 'pilihan_majemuk')
-               <p>{{ $questionTextWithoutLast3 }}</p>
-            @else
-             <p>{!! $fixedquestiontext !!}</p>
-
-            @endif
+                $hasTable = str_contains($question->question_text, '<table');
+            @endphp
+             <p>@if ($hasTable)
+            {{-- Tambahkan wrapper styling untuk tabel --}}
+            <div class="table-responsive">
+                {{-- Tambahkan style table agar rapi --}}
+                <style>
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    th, td {
+                        border: 1px solid #ccc;
+                        padding: 8px;
+                        text-align: center;
+                    }
+                    th {
+                        background-color: #f8f9fa;
+                    }
+                </style>
+                {!! $question->question_text !!}
+            </div>
+        @else
+            {!! $fixedquestiontext !!}
+        @endif</p>
             
           </div>
 
@@ -190,10 +197,28 @@ $fixedOptionText = preg_replace_callback(
                         </thead>
                         <tbody>
                            @php
-                        $plainText = strip_tags($question->question_text);
-              $words = preg_split('/\s+/', trim($plainText));
-              $lastWord = end($words);
-                @endphp
+                        $plainText = strtolower(strip_tags($question->question_text));
+                        $defaultWords = ['mendukung', 'memperlemah', 'memperkuat', 'menguatkan', 'melemahkan'];
+
+                        $matchedWord = null;
+
+                        foreach ($defaultWords as $keyword) {
+                            if (str_contains($plainText, $keyword)) {
+                                $matchedWord = ucfirst($keyword);
+                                break;
+                            }
+                        }
+
+                        if ($matchedWord) {
+                            $yesLabel = $matchedWord;
+                            $noLabel  = 'Tidak ' . $matchedWord;
+                            $isStatementValid = false;
+                        } else {
+                            $yesLabel = 'Benar';
+                            $noLabel  = 'Salah';
+                            $isStatementValid = true;
+                        }
+                    @endphp
                           @foreach($userAnswersProcessed as $answer)
                             @php
                                 $userAnswer = strtolower(trim($answer['user_answer']));
@@ -202,9 +227,9 @@ $fixedOptionText = preg_replace_callback(
                                 <td>{{ $answer['statement'] }}</td>
                                 <td class="{{ $answer['is_correct'] ? 'text-success' : 'text-danger' }}">
                                     @if($userAnswer === 'yes')
-                                        {{ $lastWord }}
+                                        {{ $yesLabel }}
                                     @elseif($userAnswer === 'no')
-                                        Tidak {{ $lastWord }}
+                                        {{ $noLabel }}
                                     @else
                                         {{ $answer['user_answer'] }}
                                     @endif
@@ -301,9 +326,9 @@ $fixedOptionText = preg_replace_callback(
                                     <td>{{ $statement }}</td>
                                     <td>
                                         @if($correct === 'yes')
-                                            {{ $lastWord }}
+                                            {{ $yesLabel }}
                                         @elseif($correct === 'no')
-                                            Tidak {{ $lastWord }}
+                                            {{ $noLabel }}
                                         @else
                                             {{ ucfirst($correct) }}
                                         @endif

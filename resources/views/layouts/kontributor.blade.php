@@ -41,8 +41,8 @@
           <div class="list-group list-group-flush">
             <a
               href="{{ route('kontributor-dashboard') }}"
-              class="list-group-item list-group-item-action {{ (request()->is('kontributor*')) ? 'active' : '' }} "
-              >Dashboard</a
+              class="list-group-item list-group-item-action {{ request()->routeIs('kontributor-dashboard') ? 'active' : '' }}">
+              Dashboard</a
             >
            <a
               href="{{ route('exam.index') }}"
@@ -153,6 +153,11 @@
                 <li class="nav-item">
                   <a class="nav-link" href="#">
                     Hi, {{ Auth::user()->username }}
+                  </a>
+                </li>
+                 <li class="nav-item">
+                  <a class="nav-link d-inline-block" href="{{route('home')}}">
+                   Back to Home
                   </a>
                 </li>
                

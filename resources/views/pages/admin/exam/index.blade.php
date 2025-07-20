@@ -47,6 +47,48 @@
         </svg>
         Buat latihan soal Baru
     </a>
+     <!-- Filter Section -->
+    <div class="filter-container">
+        <form method="GET" action="{{ route('exam.index') }}" id="filterForm">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="sub_category_id" class="filter-label">Filter Mata Pelajaran</label>
+                    <select name="sub_category_id" id="sub_category_id" class="filter-select">
+                        <option value="">-- Semua Mata Pelajaran --</option>
+                        @foreach($sub_categories as $subcategory)
+                            <option value="{{ $subcategory->id }}" {{ request('sub_category_id') == $subcategory->id ? 'selected' : '' }}>
+                                {{ $subcategory->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="created_by" class="filter-label">Filter Pembuat</label>
+                    <select name="created_by" id="created_by" class="filter-select">
+                        <option value="">-- Semua Pembuat --</option>
+                        <option value="{{ Auth::user()->name }}" {{ request('created_by') == Auth::user()->name ? 'selected' : '' }}>
+                            {{ Auth::user()->name }}
+                        </option>
+                    </select>
+                </div>
+                                
+                <div class="filter-group">
+                    <label for="search" class="filter-label">Cari Bank Soal</label>
+                    <input type="text" name="search" id="search" class="filter-input" value="{{ request('search') }}" placeholder="Masukkan nama bank soal...">
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter-apply">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        Terapkan
+                    </button>
+                    <a href="{{ route('exam.index') }}" class="btn-filter-reset">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <!-- Table Container -->
     <div class="table-container">
@@ -100,6 +142,7 @@
                                 </svg>
                                 Detail
                             </a>
+                            @if($exam->created_by == Auth::user()->name)
                             <a href="{{ route('exam.edit', $exam->id) }}" class="btn-modern btn-edit">
                                 <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
                                     <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708L10.5 8.207l-3-3L12.146.146zM11.207 9l-3-3-6.364 6.364a.5.5 0 0 0-.146.353V14.5a.5.5 0 0 0 .5.5h1.793a.5.5 0 0 0 .353-.146L11.207 9z"/>
@@ -109,13 +152,14 @@
                             <form action="{{ route('exam.destroy', $exam->id) }}" method="POST" style="display: inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-modern btn-delete" onclick="return confirm('Apakah anda yakin ingin menghapus latihan soal ini?')">
+                                <button type="submit" class="btn-modern btn-delete" onclick="return confirm('Apakah anda yakin ingin menghapus bank soal ini?')">
                                     <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
                                         <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
                                     </svg>
                                     Hapus
                                 </button>
                             </form>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -136,5 +180,25 @@
         </div>
         @endif
     </div>
+      <!-- Pagination -->
+    @if($exams->hasPages())
+    <div class="pagination-container">
+        {{ $exams->links() }}
+    </div>
+    @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const filterForm = document.getElementById('filterForm');
+        const selects = filterForm.querySelectorAll('select');
+
+        selects.forEach(function(select) {
+            select.addEventListener('change', function () {
+                filterForm.submit();
+            });
+        });
+    });
+</script>
+
 @endsection

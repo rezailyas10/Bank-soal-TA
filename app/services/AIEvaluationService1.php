@@ -104,15 +104,12 @@ class AIEvaluationService1
      */
 private function buildDetailedEvaluationPrompt(array $wrongArr, array $correctArr, int $score, array $subCategoryStats = [])
 {
-    // 1. Kumpulkan statistik per lesson dalam setiap sub_category, dan deskripsi singkat
-    $lessonStats = []; // ['subcat'=> ['lesson'=> ['correct'=>int,'wrong'=>int,'descriptions'=>[]]]]
+    // 1. Kumpulkan statistik per lesson dalam setiap sub_category
+    $lessonStats = [];
     foreach ($correctArr as $q) {
         $sub = $q['sub_category'] ?? 'Umum';
         $lesson = $q['lesson'] ?? 'Umum';
-        if (!isset($lessonStats[$sub][$lesson])) {
-            $lessonStats[$sub][$lesson] = ['correct'=>0,'wrong'=>0,'descriptions'=>[]];
-        }
-        $lessonStats[$sub][$lesson]['correct']++;
+        $lessonStats[$sub][$lesson]['correct'] = ($lessonStats[$sub][$lesson]['correct'] ?? 0) + 1;
         $desc = trim($q['description'] ?? '');
         if ($desc) {
             $lessonStats[$sub][$lesson]['descriptions'][] = $desc;
@@ -121,134 +118,118 @@ private function buildDetailedEvaluationPrompt(array $wrongArr, array $correctAr
     foreach ($wrongArr as $q) {
         $sub = $q['sub_category'] ?? 'Umum';
         $lesson = $q['lesson'] ?? 'Umum';
-        if (!isset($lessonStats[$sub][$lesson])) {
-            $lessonStats[$sub][$lesson] = ['correct'=>0,'wrong'=>0,'descriptions'=>[]];
-        }
-        $lessonStats[$sub][$lesson]['wrong']++;
+        $lessonStats[$sub][$lesson]['wrong'] = ($lessonStats[$sub][$lesson]['wrong'] ?? 0) + 1;
         $desc = trim($q['description'] ?? '');
         if ($desc) {
             $lessonStats[$sub][$lesson]['descriptions'][] = $desc;
         }
     }
-    // Buat summary deskripsi untuk tiap lesson (ambil maksimal 2 unik)
+    // Buat summary deskripsi tiap lesson (maks 2)
     foreach ($lessonStats as $sub => $lessons) {
         foreach ($lessons as $lesson => $stat) {
-            $unique = array_unique($stat['descriptions']);
-            $sample = [];
-            foreach ($unique as $d) {
-                $sample[] = $d;
-                if (count($sample) >= 2) break;
-            }
+            $unique = array_unique($stat['descriptions'] ?? []);
+            $sample = array_slice($unique, 0, 2);
             $lessonStats[$sub][$lesson]['summary'] = $sample ? implode(' ... ', $sample) : '-';
         }
     }
 
-    // 2. Hitung overall average score dari subCategoryStats
-    $overallAvgScore = 0.0;
-    if (!empty($subCategoryStats)) {
-        $sumScore = 0.0;
-        foreach ($subCategoryStats as $st) {
-            // pastikan key 'average_score' ada
-            $sumScore += $st['average_score'];
+    // 2. Format Analisa Per Materi (Lesson)
+    $materiSection = "🔍 **Analisa Per Materi (Lesson)**\n\n";
+    $materiSection .= "Kekuatan\n";
+    $foundStrength = false;
+    foreach ($lessonStats as $subcat => $lessons) {
+        $lines = [];
+        foreach ($lessons as $lesson => $stat) {
+            $c = $stat['correct'] ?? 0;
+            $w = $stat['wrong'] ?? 0;
+            if ($c + $w > 0 && $c >= $w) {
+                $foundStrength = true;
+                $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
+            }
         }
-        $overallAvgScore = $sumScore / count($subCategoryStats);
+        if ($lines) {
+            $materiSection .= "Mata Pelajaran: {$subcat}\n";
+            foreach ($lines as $l) {
+                $materiSection .= "{$l}\n";
+            }
+        }
     }
-    // Klasifikasi subkategori berdasarkan average_score
-    $subStrengths = [];
-    $subWeaknesses = [];
-    foreach ($subCategoryStats as $st) {
-        $name = $st['name'];
-        $avg = $st['average_score'];
-        if ($avg >= $overallAvgScore) {
-            $subStrengths[] = ['name'=>$name, 'average_score'=>$avg];
-        } else {
-            $subWeaknesses[] = ['name'=>$name, 'average_score'=>$avg];
-        }
+    if (!$foundStrength) {
+        $materiSection .= "- Tidak ada materi dengan jumlah benar ≥ salah.\n";
     }
 
-   // 3. Format Analisa Per Materi (Lesson)
-$materiSection = "🔍 **Analisa Per Materi (Lesson)**\n\n";
-// Kekuatan per materi
-$materiSection .= "Kekuatan\n";
-$foundStrength = false;
+    $materiSection .= "\nKelemahan\n";
+    $foundWeak = false;
+    foreach ($lessonStats as $subcat => $lessons) {
+        $lines = [];
+        foreach ($lessons as $lesson => $stat) {
+            $c = $stat['correct'] ?? 0;
+            $w = $stat['wrong'] ?? 0;
+            if ($w > $c) {
+                $foundWeak = true;
+                $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
+            }
+        }
+        if ($lines) {
+            $materiSection .= "Mata Pelajaran: {$subcat}\n";
+            foreach ($lines as $l) {
+                $materiSection .= "{$l}\n";
+            }
+        }
+    }
+    if (!$foundWeak) {
+        $materiSection .= "- Tidak ada materi dengan jumlah salah > benar.\n";
+    }
+
+    // 3. Format Analisa Per Mata Pelajaran berdasarkan benar vs salah
+   // 3. Hitung ulang statistik per subCategory langsung dari lessonStats
+$subStats = [];  // ['subcat' => ['correct'=>int,'wrong'=>int]]
 foreach ($lessonStats as $subcat => $lessons) {
-    $lines = [];
-    foreach ($lessons as $lesson => $stat) {
-        $c = $stat['correct']; $w = $stat['wrong'];
-        if (($c + $w) > 0 && $c >= $w) {
-            $foundStrength = true;
-            $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
-        }
+    $sc = 0; $sw = 0;
+    foreach ($lessons as $stat) {
+        $sc += $stat['correct'] ?? 0;
+        $sw += $stat['wrong']   ?? 0;
     }
-    if ($lines) {
-        $materiSection .= "Mata Pelajaran: {$subcat}\n";
-        foreach ($lines as $l) {
-            $materiSection .= "{$l}\n";
-        }
-    }
-}
-if (!$foundStrength) {
-    $materiSection .= "- Tidak ada materi dengan jumlah benar ≥ salah.\n";
+    $subStats[$subcat] = ['correct'=>$sc, 'wrong'=>$sw];
 }
 
-// Kelemahan per materi
-$materiSection .= "\nKelemahan\n";
-$foundWeak = false;
-foreach ($lessonStats as $subcat => $lessons) {
-    $lines = [];
-    foreach ($lessons as $lesson => $stat) {
-        $c = $stat['correct']; $w = $stat['wrong'];
-        if ($w > $c) {
-            $foundWeak = true;
-            $lines[] = "- {$lesson}: {$stat['summary']} ({$c} benar, {$w} salah)";
-        }
-    }
-    if ($lines) {
-        $materiSection .= "Mata Pelajaran: {$subcat}\n";
-        foreach ($lines as $l) {
-            $materiSection .= "{$l}\n";
-        }
-    }
-}
-if (!$foundWeak) {
-    $materiSection .= "- Tidak ada materi dengan jumlah salah > benar.\n";
-}
+// 4. Format Analisa Per Mata Pelajaran berdasarkan $subStats
+$subcatSection = "\n📊 **Analisa Per Mata Pelajaran (SubCategory)**\n\n";
 
-    // 4. Format Analisa Per Mata Pelajaran berdasarkan average_score
-    $subcatSection = "\n📊 **Analisa Per Mata Pelajaran**\n\n";
-    $subcatSection .= "Kekuatan\n";
-    if (!empty($subStrengths)) {
-        foreach ($subStrengths as $st) {
-            $subcatSection .= sprintf(
-                "- %s: Rata-rata nilai %.2f\n",
-                $st['name'],
-                $st['average_score']
-            );
-            $subcatSection .= "\n";
-        }
+// Kekuatan: benar ≥ salah
+$strengths = [];
+// Kelemahan: salah > benar
+$weaknesses = [];
+
+foreach ($subStats as $subcat => $stat) {
+    if ($stat['correct'] >= $stat['wrong']) {
+        $strengths[] = sprintf(
+            "%s (%d benar, %d salah%s)",
+            $subcat,
+            $stat['correct'],
+            $stat['wrong'],
+            !empty($subCategoryStats[$subcat]['average_score'])
+                ? sprintf(", Skor: %.2f", $subCategoryStats[$subcat]['average_score'])
+                : ''
+        );
     } else {
-        $subcatSection .= "- Tidak ada mata pelajaran dengan average_score ≥ rata-rata keseluruhan (%.2f).\n";
-        // Sisipkan nilai overall jika diperlukan
-        $subcatSection = sprintf($subcatSection, $overallAvgScore);
-        $subcatSection .= "\n";
+        $weaknesses[] = sprintf(
+            "%s (%d benar, %d salah%s)",
+            $subcat,
+            $stat['correct'],
+            $stat['wrong'],
+            !empty($subCategoryStats[$subcat]['average_score'])
+                ? sprintf(", Skor: %.2f", $subCategoryStats[$subcat]['average_score'])
+                : ''
+        );
     }
-    $subcatSection .= "\nKelemahan\n";
-    if (!empty($subWeaknesses)) {
-        foreach ($subWeaknesses as $st) {
-            $subcatSection .= sprintf(
-                "- %s: Rata-rata nilai %.2f\n",
-                $st['name'],
-                $st['average_score']
-            );
-            $subcatSection .= "\n";
-        }
-    } else {
-        $subcatSection .= "- Tidak ada mata pelajaran dengan average_score < rata-rata keseluruhan (%.2f).\n";
-        $subcatSection = sprintf($subcatSection, $overallAvgScore);
-        $subcatSection .= "\n";
-    }
+}
 
-    // 5. Gabungkan menjadi prompt
+$subcatSection .= "Kekuatan: " . (!empty($strengths) ? implode('; ', $strengths) : '–') . "\n";
+$subcatSection .= "Kelemahan: " . (!empty($weaknesses) ? implode('; ', $weaknesses) : '–') . "\n";
+
+
+    // 4. Gabungkan menjadi prompt
     $prompt = <<<EOD
 Kamu adalah tutor yang mengevaluasi kompetensi siswa berdasarkan latihan soal.
 
@@ -258,13 +239,11 @@ Kamu adalah tutor yang mengevaluasi kompetensi siswa berdasarkan latihan soal.
 
 {$subcatSection}
 
-Tulis ringkas, jelas, dan langsung ke poin minimal 600 kata (≤9500 kata).
-lalu simpulkan hasil dari evaluasi tersebut
+Tulis ringkas, jelas, dan langsung ke poin minimal 600 kata.
 EOD;
 
     return $prompt;
 }
-
 
 
 
@@ -373,6 +352,33 @@ private function buildScoreBasedRecommendationPrompt($score, $majorRankings, $ha
         $evaluationText .= $line . "\n";
     }
 
+// 9. Rekomendasi jurusan di Institut Teknologi Indonesia (ITI)
+$itiMajors = [
+    ['name' => 'Teknik Elektro', 'score_range' => [400, 1000]],
+    ['name' => 'Teknik Mesin', 'score_range' => [400, 1000]],
+    ['name' => 'Teknik Sipil', 'score_range' => [580, 1000]],
+    ['name' => 'Arsitektur', 'score_range' => [580, 1000]],
+    ['name' => 'Teknik Kimia', 'score_range' => [580, 1000]],
+    ['name' => 'Teknik Industri', 'score_range' => [500, 1000]],
+    ['name' => 'Perencanaan Wilayah Dan Kota', 'score_range' => [580, 1000]],
+    ['name' => 'Teknologi Industri Pertanian', 'score_range' => [550, 1000]],
+    ['name' => 'Teknik Informatika', 'score_range' => [520, 1000]],
+    ['name' => 'Manajemen', 'score_range' => [450, 1000]],
+];
+
+$itiRecommendations = [];
+foreach ($itiMajors as $major) {
+    [$minScore, $maxScore] = $major['score_range'];
+    if ($score >= $minScore && $score <= $maxScore) {
+        $itiRecommendations[] = "• {$major['name']} (S1 - Institut Teknologi Indonesia)";
+    }
+}
+
+$itiText = count($itiRecommendations) > 0
+    ? implode("\n", $itiRecommendations)
+    : "Belum ada jurusan di ITI yang cocok dengan nilai Anda saat ini.";
+
+
     // 8. Susun prompt akhir
     $prompt = <<<EOD
 Kamu adalah konselor akademik yang REALISTIS dan HANYA menggunakan data jurusan yang tersedia di database.
@@ -415,7 +421,14 @@ PENTING:
 - Kalau tidak ada alternatif di salah satu kategori, jangan paksa membuat rekomendasi di kategori tersebut.
 - Gunakan HANYA data yang benar-benar tersedia di database.
 - Maksimal 5000 kata, bahasa praktis dan jujur.
+
+🏫 REKOMENDASI KHUSUS ITI (Institut Teknologi Indonesia):
+Berikut jurusan-jurusan di ITI yang secara realistis bisa kamu pertimbangkan sesuai dengan nilai tryout kamu:
+
+{$itiText}
 EOD;
+
+
 
     return $prompt;
 }
